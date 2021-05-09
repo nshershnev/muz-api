@@ -12,7 +12,7 @@ import * as passport from "passport";
 import * as mongo from "connect-mongo";
 import * as session from "express-session";
 
-import { db } from "./utils";
+import { db, logger } from "./utils";
 import { userController } from "./components";
 import * as passportConfig from "./config/passport";
 import config from "./config/convict";
@@ -30,6 +30,8 @@ export const appAsync = Promise.all(
    * Create Express server.
    */
   const app = express();
+
+  process.setMaxListeners(24);
 
   // it just to have db instance in tests when we are using app as init instance
   app.set("db", db);
