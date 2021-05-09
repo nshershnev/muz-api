@@ -12,7 +12,7 @@ import * as passport from "passport";
 import * as mongo from "connect-mongo";
 import * as session from "express-session";
 
-import { db, logger } from "./utils";
+import { db, handleSyntaxErrorMiddleware, logger } from "./utils";
 import { userController } from "./components";
 import * as passportConfig from "./config/passport";
 import config from "./config/convict";
@@ -41,6 +41,7 @@ export const appAsync = Promise.all(
    */
   app.use(compression());
   app.use(bodyParser.json());
+  app.use(handleSyntaxErrorMiddleware);
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(expressValidator());
   app.use(passportConfig.initStrategies);
