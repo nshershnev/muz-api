@@ -54,9 +54,7 @@ export const registerSchema = {
       pattern: rules.plainString.source
     },
     password: {
-      type: "string",
-      pattern: rules.password.source,
-      minLength: 10
+      type: "string"
     },
   },
   required: ["email", "password"],
@@ -73,9 +71,7 @@ export const loginSchema = {
       maxLength: 255
     },
     password: {
-      type: "string",
-      pattern: rules.password.source,
-      minLength: 10
+      type: "string"
     },
   },
   required: ["email", "password"],
