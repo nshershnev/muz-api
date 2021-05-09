@@ -1,14 +1,12 @@
 
 import { MongoClient, Db } from "mongodb";
-import * as dotenv from "dotenv";
-
-dotenv.config({ path: ".env" });
+import config from "../config/convict";
 
 class MongoConnection {
     private db: Db = undefined;
     private mongoClient: MongoClient = undefined;
-    private uri: string = process.env.MONGODB_URI; // we may implement convict instead of process.env
-    private dbName: string = process.env.DB_NAME;
+    private uri: string = config.get("db.uri");
+    private dbName: string = config.get("db.name");
 
     public async connect(): Promise<Db> {
         if (!this.db) {

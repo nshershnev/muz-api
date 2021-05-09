@@ -5,12 +5,13 @@ import { Express } from "express";
 import swaggerJSDoc = require("swagger-jsdoc");
 
 import { appAsync } from "./app";
+import config from "./config/convict";
 
 // add swagger routes when we run server
 appAsync.then((app: Express) => {
   // we may use convict or dotenv instead of using process.env
-  const port: number = Number(process.env.PORT) || 8000;
-  const host: string = process.env.HOST || "0.0.0.0";
+  const port: number = Number(config.get("port")) || 8000;
+  const host: string = config.get("host") || "0.0.0.0";
 
   const swaggerSpec = swaggerJSDoc({
     swaggerDefinition: {

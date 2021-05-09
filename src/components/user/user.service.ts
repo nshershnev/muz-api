@@ -6,9 +6,10 @@ import * as bcrypt from "bcrypt-nodejs";
 
 import { AccessTokenModel, userErrorsLib, userRepository, UserModel, whiteListRepository } from "./";
 import { ApiError, generateId } from "../../utils";
+import config from "../../config/convict";
 
 class UserService {
-    private accessTokenExpiresTimeMins: number = +process.env.ACCESS_TOKEN_EXPIRES_TIME_MINS;
+    private accessTokenExpiresTimeMins: number = Number(config.get("expireTime.accessToken"));
 
     public async addUser(user: UserModel): Promise<UserModel> {
         const isEmailExists = await userRepository.getUserByEmail(user.email);
@@ -131,7 +132,7 @@ class UserService {
                         } = user;
 
                         const authUser = {
-                            token: `Bearer ${jwt.sign(user, process.env.SESSION_SECRET)}`,
+                            token: `Bearer ${jwt.sign(user, config.get("keys.sessionSecret"))}`,
                             ...restProps,
                         };
 

@@ -5,6 +5,7 @@ import * as passportJWT from "passport-jwt";
 import * as bcrypt from "bcrypt-nodejs";
 
 import { userErrorsLib, UserModel, userService } from "../components/user";
+import config from "../config/convict";
 
 const LocalStrategy = passportLocal.Strategy;
 const JwtStrategy = passportJWT.Strategy;
@@ -49,7 +50,7 @@ export const initStrategies = async (req: Request, res: Response, next: NextFunc
 
   passport.use(new JwtStrategy({
     jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme("Bearer"),
-    secretOrKey: process.env.SESSION_SECRET
+    secretOrKey: config.get("keys.sessionSecret")
   }, async (user: UserModel, done: any) => {
     await checkUserInDB(user, done, (a: string, b: string) => a === b);
   }));

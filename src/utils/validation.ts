@@ -12,7 +12,10 @@ export const validationRegexLib: ValidationRegexLib = {
     number: /^[0-9]+$/,
     email: /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i,
     password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@£$%^&*()_+\-**])[a-zA-Z0-9!@£$%^&*()_+\-**]{10,}$/,
-    plainString: /^[-.'\sA-Za-z\u00C0-\u017F]*$/i
+    plainString: /^[-.'\sA-Za-z\u00C0-\u017F]*$/i,
+    mongoURI: /^(mongodb:(?:\/{2})?)((\w+?):(\w+?)@|:?@?)(\w+?):(\d+)\/(\w+?)/,
+    host: /^(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})|(localhost))$/,
+    port: /^[1-9][0-9]{0,4}$/
 };
 
 export function validate(content: any, schema: any, isUpdate: boolean = false) {

@@ -5,7 +5,6 @@ import { Express } from "express";
 import * as bodyParser from "body-parser";
 import * as compression from "compression";
 import * as cors from "cors";
-import * as dotenv from "dotenv";
 import * as errorHandler from "errorhandler";
 import * as express from "express";
 import expressValidator = require("express-validator");
@@ -16,6 +15,7 @@ import * as session from "express-session";
 import { db } from "./utils";
 import { userController } from "./components";
 import * as passportConfig from "./config/passport";
+import config from "./config/convict";
 
 const MongoStore = mongo(session);
 
@@ -26,8 +26,6 @@ export const appAsync = Promise.all(
     db.connect()
   ]
 ).then(async (): Promise<Express> => {
-  dotenv.config({ path: ".env" });
-
   /**
    * Create Express server.
    */
@@ -47,9 +45,9 @@ export const appAsync = Promise.all(
   app.use(session({
     resave: true,
     saveUninitialized: true,
-    secret: process.env.SESSION_SECRET,
+    secret: config.get("keys.sessionSecret"),
     store: new MongoStore({
-      url: process.env.MONGODB_URI,
+      url: config.get("db.uri"),
       autoReconnect: true
     })
   }));
