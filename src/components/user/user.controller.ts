@@ -162,9 +162,8 @@ router.post(
     // TODO: add auth middleware here
     catchErrors(async (req: Request, res: Response) => {
         const user = validate(req.body, registerSchema);
-        const newUser = await userService.addUser(user);
-
-        return resSuccess(201, newUser);
+        const result = await userService.addUser(user);
+        return resSuccess(201, result);
     })
 );
 

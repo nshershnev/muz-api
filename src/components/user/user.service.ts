@@ -11,7 +11,7 @@ import config from "../../config/convict";
 class UserService {
     private accessTokenExpiresTimeMins: number = Number(config.get("expireTime.accessToken"));
 
-    public async addUser(user: UserModel): Promise<UserModel> {
+    public async addUser(user: UserModel) {
         const isEmailExists = await userRepository.getUserByEmail(user.email);
         if (isEmailExists) {
             throw new ApiError(userErrorsLib.emailIsAlreadyUsed);
@@ -30,16 +30,7 @@ class UserService {
         };
 
         const addedUser: UserModel = await userRepository.addUser(newUser);
-
-        const {
-            _id,
-            ...restProps
-        } = addedUser;
-
-        return {
-            ...restProps,
-            password,
-        };
+        return { message: `Success! User with ${addedUser.email} was created` };
     }
 
     public async getUserById(userId: string): Promise<UserModel> {
@@ -52,9 +43,6 @@ class UserService {
 
     public async getUserByEmail(email: string): Promise<UserModel> {
         const user: UserModel = await userRepository.getUserByEmail(email);
-        if (!user) {
-            throw new ApiError(userErrorsLib.userNotFound);
-        }
         return user;
     }
 
@@ -128,6 +116,8 @@ class UserService {
                         const {
                             _id,
                             password,
+                            createdAt,
+                            updatedAt,
                             ...restProps
                         } = user;
 
