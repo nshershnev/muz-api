@@ -75,6 +75,11 @@ class UserService {
         return updatedUser;
     }
 
+    public async removeUser(userId: string): Promise<any> {
+        const removedUser: any = await userRepository.removeUser(userId);
+        return { message: `Success! User with ${removedUser.userId} was removed` };
+    }
+
     private getExpiresDateTime(addMinsToDate: number, date: any = new Date()): Date {
         return new Date((new Date(date)).getTime() + (addMinsToDate * 60 * 1000));
     }

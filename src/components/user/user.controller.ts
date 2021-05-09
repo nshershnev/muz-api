@@ -172,7 +172,7 @@ router.post(
 
 /**
  * @swagger
- * /users/{id}:
+ * /users/{userId}:
  *   patch:
  *     tags:
  *       - User
@@ -182,7 +182,7 @@ router.post(
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: id
+ *       - name: userId
  *         description: User's id
  *         in: path
  *         required: true
@@ -239,6 +239,51 @@ router.patch(
         const updatedUser = await userService.updateUser(userId, user);
 
         return resSuccess(200, updatedUser);
+    })
+);
+
+/**
+ * @swagger
+ * /users/{userId}:
+ *   delete:
+ *     tags:
+ *       - User
+ *     security:
+ *       - Bearer: []
+ *     description: Remove user by id
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: userId
+ *         description: User's id
+ *         in: path
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: Removed user
+ *         properties:
+ *           content:
+ *              $ref: '#/definitions/User'
+ *       410:
+ *         description: User's id is not valid
+ *         properties:
+ *           error:
+ *              $ref: '#/definitions/Error'
+ */
+router.delete(
+    "/users/:userId",
+    passportConfig.isAuthorized,
+    passportConfig.isAuthenticated,
+    catchErrors(async (req: Request, res: Response) => {
+        const { userId } = req.params;
+
+        if (!isUuidValid(userId)) {
+            throw new ApiError(userErrorsLib.userIdIsNotValid);
+        }
+
+        const result = await userService.removeUser(userId);
+        return resSuccess(200, result);
     })
 );
 

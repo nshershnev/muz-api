@@ -59,6 +59,17 @@ class UserRepository {
         };
     }
 
+    public async removeUser(userId: string) {
+        const removedUser = await db.Context
+            .collection(MONGO_COLLECTIONS.USERS_COLLECTION)
+            .deleteOne({ userId });
+
+        if (removedUser.result.n === 0) {
+            throw new ApiError(userErrorsLib.userNotFound);
+        }
+
+        return { userId };
+    }
 }
 
 export const userRepository = new UserRepository();
