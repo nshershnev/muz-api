@@ -6,6 +6,8 @@ export interface UserModel {
   _id?: string | ObjectId;
   userId?: string;
   email?: string;
+  proneNumber?: string;
+  instrument?: string;
   password?: string;
   firstName?: string;
   lastName?: string;
@@ -22,6 +24,13 @@ export const userSchema = {
       pattern: rules.email.source,
       minLength: 9,
       maxLength: 255
+    },
+    phoneNumber: {
+      type: "string",
+      pattern: rules.phoneNumber.source,
+    },
+    instrument: {
+      type: "string"
     },
     firstName: {
       type: "string",

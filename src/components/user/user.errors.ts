@@ -15,7 +15,7 @@ export const userErrorsLib: ErrorLibrary = {
     },
     userNotFound: {
         status: 404,
-        message: "user not found"
+        message: "User not found"
     },
     incorrectUsernameOrPassword: {
         status: 404,
@@ -35,7 +35,7 @@ export const userErrorsLib: ErrorLibrary = {
     },
     userIsNotCreated: {
         status: 500,
-        message: "User don't created"
+        message: "User is not created"
     },
     tokenIsNotCreated: {
         status: 500,
