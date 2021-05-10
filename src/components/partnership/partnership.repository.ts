@@ -16,12 +16,6 @@ class PartnershipRepository {
             );
     }
 
-    public async getPartnershipByEmail(email: string): Promise<PartnershipModel> {
-        return db.Context
-            .collection(MONGO_COLLECTIONS.PARTHNERSHIPS_COLLECTION)
-            .findOne({ email });
-    }
-
     public async getAllPartnerships(): Promise<Array<PartnershipModel>> {
         return db.Context
             .collection(MONGO_COLLECTIONS.PARTHNERSHIPS_COLLECTION)
