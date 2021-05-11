@@ -54,6 +54,5 @@ export const vacancySchema = {
       pattern: rules.phoneNumber.source,
     },
   },
-  required: ["email", "firstName", "lastName"],
   additionalProperties: false
 };

@@ -54,6 +54,5 @@ export const partnershipSchema = {
             pattern: rules.phoneNumber.source,
         },
     },
-    required: ["email", "firstName", "lastName"],
     additionalProperties: false
 };
