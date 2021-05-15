@@ -126,8 +126,6 @@ router.get(
  *   post:
  *     tags:
  *       - User
- *     security:
- *       - Bearer: []
  *     description: Create user
  *     produces:
  *       - application/json
@@ -161,8 +159,6 @@ router.get(
  */
 router.post(
     "/users",
-    passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
     catchErrors(async (req: Request, res: Response) => {
         const user = validate(req.body, registerSchema);
         const result = await userService.addUser(user);
