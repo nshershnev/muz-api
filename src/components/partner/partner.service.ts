@@ -1,7 +1,7 @@
 import { isEmpty } from "lodash";
 
 import { ApiError, generateId } from "../../utils";
-import { partnerErrorsLib, partnerRepository, PartnerModel } from "./";
+import { LikeModel, partnerErrorsLib, partnerRepository, PartnerModel } from "./";
 
 class PartnerService {
     public async addPartner(partner: PartnerModel) {
@@ -56,6 +56,20 @@ class PartnerService {
     public async removePartner(partnerId: string): Promise<any> {
         const removedPartner: any = await partnerRepository.removePartner(partnerId);
         return { message: `Success! Partner with ${removedPartner.partnerId} was removed` };
+    }
+
+    public async addLikeById(partnerId: string, like: LikeModel): Promise<any> {
+        const likeId = generateId();
+        const currDate = new Date();
+
+        const newLike: LikeModel = {
+            ...like,
+            likeId,
+            createdAt: currDate,
+        };
+
+        const updatedPartner: any = await partnerRepository.addLikeById(partnerId, newLike);
+        return {};
     }
 }
 

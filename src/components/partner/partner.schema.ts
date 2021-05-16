@@ -28,7 +28,6 @@ export interface PartnerModel {
     latitude?: Number;
     longitude?: Number;
     likes?: Array<LikeModel>;
-    visits?: Array<VisitModel>;
     createdAt?: string | Date;
     updatedAt?: string | Date;
 }
@@ -98,21 +97,22 @@ const bonusSchema = {
     additionalProperties: false
 };
 
-interface LikeModel {
+export interface LikeModel {
     likeId?: string;
     userId?: string;
     createdAt?: string | Date;
 }
 
-const likeSchema = {};
-
-interface VisitModel {
-    visitId?: string;
-    userId?: string;
-    createdAt?: string | Date;
-}
-
-const visitSchema = {};
+export const likeSchema = {
+    type: "object",
+    properties: {
+        userId: {
+            type: "string",
+        },
+    },
+    required: ["userId"],
+    additionalProperties: false
+};
 
 export const partnerSchema = {
     type: "object",
@@ -199,12 +199,6 @@ export const partnerSchema = {
         likes: {
             type: "array",
             items: likeSchema,
-            additionalItems: false,
-            uniqueItems: true
-        },
-        visits: {
-            type: "array",
-            items: visitSchema,
             additionalItems: false,
             uniqueItems: true
         }

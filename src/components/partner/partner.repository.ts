@@ -1,4 +1,4 @@
-import { partnerErrorsLib, PartnerModel } from "./";
+import { LikeModel, partnerErrorsLib, PartnerModel } from "./";
 import { ApiError, db } from "../../utils";
 import { MONGO_COLLECTIONS } from "../../shared/constants";
 
@@ -70,6 +70,21 @@ class PartnerRepository {
         }
 
         return { partnerId };
+    }
+
+    public async addLikeById(partnerId: string, like: LikeModel) {
+        const res = await db.Context
+            .collection(MONGO_COLLECTIONS.PARTHNERS_COLLECTION)
+            .updateOne(
+                { partnerId },
+                { $addToSet: { likes: like } }
+            );
+
+        if (!res.matchedCount) {
+            throw new ApiError(partnerErrorsLib.partnerNotFound);
+        }
+
+        return like;
     }
 }
 
