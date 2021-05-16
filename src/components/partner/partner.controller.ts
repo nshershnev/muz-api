@@ -225,6 +225,51 @@ router.patch(
 
 /**
  * @swagger
+ * /partners/search:
+ *   post:
+ *     tags:
+ *       - Partner
+ *     security:
+ *       - Bearer: []
+ *     description: Returns found partners
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: partner
+ *         description: Partner object
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/Partner'
+ *     responses:
+ *       200:
+ *         description: An array of partners
+ *         properties:
+ *           content:
+ *             type: array
+ *             items:
+ *               $ref: '#/definitions/Partner'
+ *       400:
+ *         description: Validation error
+ *         properties:
+ *           error:
+ *             $ref: '#/definitions/Error'
+ *       401:
+ *         description: Unauthorized user
+ */
+ router.post(
+    "/partners/search",
+    passportConfig.isAuthorized,
+    passportConfig.isAuthenticated,
+    catchErrors(async (req: Request, res: Response) => {
+        const partner = validate(req.body, partnerSchema, true);
+        const result = await partnerService.searchPartners(partner);
+        return resSuccess(200, result);
+    })
+);
+
+/**
+ * @swagger
  * /partners/{partnerId}:
  *   delete:
  *     tags:

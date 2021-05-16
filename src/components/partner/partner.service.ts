@@ -32,6 +32,11 @@ class PartnerService {
         return users;
     }
 
+    public async searchPartners(partner: PartnerModel) {
+        const partners: Array<PartnerModel> = await partnerRepository.searchPartners(partner);
+        return partners;
+    }
+
     public async updatePartner(partnerId: string, partner: any): Promise<any> {
         if (isEmpty(partner)) {
             return {};

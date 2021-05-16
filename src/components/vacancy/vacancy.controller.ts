@@ -63,6 +63,8 @@ const router = Router();
  *             type: array
  *             items:
  *                $ref: '#/definitions/Vacancy'
+ *       401:
+ *         description: Unauthorized users
  */
 router.get(
     "/vacancies",
@@ -97,6 +99,8 @@ router.get(
  *         properties:
  *           content:
  *              $ref: '#/definitions/Vacancy'
+ *       401:
+ *         description: Unauthorized users
  *       404:
  *         description: Vacancy not found
  *         properties:
@@ -153,6 +157,8 @@ router.get(
  *         properties:
  *           error:
  *             $ref: '#/definitions/Error'
+ *       401:
+ *         description: Unauthorized users
  */
 router.post(
     "/vacancies",
@@ -199,6 +205,8 @@ router.post(
  *         properties:
  *           error:
  *              $ref: '#/definitions/Error'
+ *       401:
+ *         description: Unauthorized users
  *       410:
  *         description: Vacancy's id is not valid
  *         properties:
@@ -225,6 +233,51 @@ router.patch(
 
 /**
  * @swagger
+ * /vacancies/search:
+ *   post:
+ *     tags:
+ *       - Vacancy
+ *     security:
+ *       - Bearer: []
+ *     description: Returns found vacancies
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: vacancy
+ *         description: Vacancy object
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/Vacancy'
+ *     responses:
+ *       200:
+ *         description: An array of vacancies
+ *         properties:
+ *           content:
+ *             type: array
+ *             items:
+ *               $ref: '#/definitions/Vacancy'
+ *       400:
+ *         description: Validation error
+ *         properties:
+ *           error:
+ *             $ref: '#/definitions/Error'
+ *       401:
+ *         description: Unauthorized users
+ */
+ router.post(
+    "/vacancies/search",
+    passportConfig.isAuthorized,
+    passportConfig.isAuthenticated,
+    catchErrors(async (req: Request, res: Response) => {
+        const vacancy = validate(req.body, vacancySchema, true);
+        const result = await vacancyService.searchVacancies(vacancy);
+        return resSuccess(200, result);
+    })
+);
+
+/**
+ * @swagger
  * /vacancies/{vacancyId}:
  *   delete:
  *     tags:
@@ -246,6 +299,8 @@ router.patch(
  *         properties:
  *           content:
  *              $ref: '#/definitions/Vacancy'
+ *       401:
+ *         description: Unauthorized users
  *       410:
  *         description: Vacancy's id is not valid
  *         properties:

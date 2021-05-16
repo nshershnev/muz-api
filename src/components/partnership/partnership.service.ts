@@ -32,6 +32,11 @@ class PartnershipService {
         return users;
     }
 
+    public async searchPartnerships(partnership: PartnershipModel) {
+        const partnerships: Array<PartnershipModel> = await partnershipRepository.searchPartnerships(partnership);
+        return partnerships;
+    }
+
     public async updatePartnership(partnershipId: string, partnership: any): Promise<any> {
         if (isEmpty(partnership)) {
             return {};

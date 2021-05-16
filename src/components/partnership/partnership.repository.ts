@@ -53,6 +53,13 @@ class PartnershipRepository {
         };
     }
 
+    public async searchPartnerships(partnership: any): Promise<Array<PartnershipModel>> {
+        return db.Context
+            .collection(MONGO_COLLECTIONS.PARTHNERSHIPS_COLLECTION)
+            .find({ ...partnership }, { projection: this.projection })
+            .toArray();
+    }
+
     public async removePartnership(partnershipId: string) {
         const removedPartnership = await db.Context
             .collection(MONGO_COLLECTIONS.PARTHNERSHIPS_COLLECTION)

@@ -48,6 +48,11 @@ class VacancyService {
         return updatedVacancy;
     }
 
+    public async searchVacancies(vacancy: VacancyModel) {
+        const vacancies: Array<VacancyModel> = await vacancyRepository.searchVacancies(vacancy);
+        return vacancies;
+    }
+
     public async removeVacancy(vacancyId: string): Promise<any> {
         const removedVacancy: any = await vacancyRepository.removeVacancy(vacancyId);
         return { message: `Success! Vacancy with ${removedVacancy.vacancyId} was removed` };

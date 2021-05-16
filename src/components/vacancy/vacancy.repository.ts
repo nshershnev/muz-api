@@ -53,6 +53,13 @@ class VacancyRepository {
         };
     }
 
+    public async searchVacancies(vacancy: any): Promise<Array<VacancyModel>> {
+        return db.Context
+            .collection(MONGO_COLLECTIONS.VACANCIES_COLLECTION)
+            .find({ ...vacancy }, { projection: this.projection })
+            .toArray();
+    }
+
     public async removeVacancy(vacancyId: string) {
         const removedVacancy = await db.Context
             .collection(MONGO_COLLECTIONS.VACANCIES_COLLECTION)

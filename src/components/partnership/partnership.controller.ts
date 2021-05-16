@@ -63,6 +63,8 @@ const router = Router();
  *             type: array
  *             items:
  *                $ref: '#/definitions/Partnership'
+ *       401:
+ *         description: Unauthorized user
  */
 router.get(
     "/partnerships",
@@ -97,6 +99,8 @@ router.get(
  *         properties:
  *           content:
  *              $ref: '#/definitions/Partnership'
+ *       401:
+ *         description: Unauthorized user
  *       404:
  *         description: Partnership not found
  *         properties:
@@ -153,6 +157,8 @@ router.get(
  *         properties:
  *           error:
  *             $ref: '#/definitions/Error'
+ *       401:
+ *         description: Unauthorized user
  */
 router.post(
     "/partnerships",
@@ -199,6 +205,8 @@ router.post(
  *         properties:
  *           error:
  *              $ref: '#/definitions/Error'
+ *       401:
+ *         description: Unauthorized user
  *       410:
  *         description: Partnership's id is not valid
  *         properties:
@@ -225,6 +233,51 @@ router.patch(
 
 /**
  * @swagger
+ * /partnerships/search:
+ *   post:
+ *     tags:
+ *       - Partnership
+ *     security:
+ *       - Bearer: []
+ *     description: Returns found partnerships
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: partnership
+ *         description: Partnership object
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/Partnership'
+ *     responses:
+ *       200:
+ *         description: An array of partnerships
+ *         properties:
+ *           content:
+ *             type: array
+ *             items:
+ *               $ref: '#/definitions/Partnership'
+ *       400:
+ *         description: Validation error
+ *         properties:
+ *           error:
+ *             $ref: '#/definitions/Error'
+ *       401:
+ *         description: Unauthorized user
+ */
+router.post(
+    "/partnerships/search",
+    passportConfig.isAuthorized,
+    passportConfig.isAuthenticated,
+    catchErrors(async (req: Request, res: Response) => {
+        const partnership = validate(req.body, partnershipSchema, true);
+        const result = await partnershipService.searchPartnerships(partnership);
+        return resSuccess(200, result);
+    })
+);
+
+/**
+ * @swagger
  * /partnerships/{partnershipId}:
  *   delete:
  *     tags:
@@ -246,6 +299,8 @@ router.patch(
  *         properties:
  *           content:
  *              $ref: '#/definitions/Partnership'
+ *       401:
+ *         description: Unauthorized user
  *       410:
  *         description: Partnership's id is not valid
  *         properties:
