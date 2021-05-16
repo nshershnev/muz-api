@@ -75,6 +75,11 @@ class UserService {
         return updatedUser;
     }
 
+    public async searchUsers(user: UserModel) {
+        const users: Array<UserModel> = await userRepository.searchUsers(user);
+        return users;
+    }
+
     public async removeUser(userId: string): Promise<any> {
         const removedUser: any = await userRepository.removeUser(userId);
         return { message: `Success! User with ${removedUser.userId} was removed` };

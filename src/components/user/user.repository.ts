@@ -59,6 +59,13 @@ class UserRepository {
         };
     }
 
+    public async searchUsers(user: any): Promise<Array<UserModel>> {
+        return db.Context
+            .collection(MONGO_COLLECTIONS.USERS_COLLECTION)
+            .find({ ...user }, { projection: this.projection })
+            .toArray();
+    }
+
     public async removeUser(userId: string) {
         const removedUser = await db.Context
             .collection(MONGO_COLLECTIONS.USERS_COLLECTION)

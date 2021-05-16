@@ -55,6 +55,8 @@ const router = Router();
  *             type: array
  *             items:
  *                $ref: '#/definitions/User'
+ *       401:
+ *         description: Unauthorized user
  */
 router.get(
     "/users",
@@ -89,6 +91,8 @@ router.get(
  *         properties:
  *           content:
  *              $ref: '#/definitions/User'
+ *       401:
+ *         description: Unauthorized user
  *       404:
  *         description: User not found
  *         properties:
@@ -207,6 +211,8 @@ router.post(
  *         properties:
  *           error:
  *              $ref: '#/definitions/Error'
+ *       401:
+ *         description: Unauthorized user
  *       410:
  *         description: User's id is not valid
  *         properties:
@@ -240,6 +246,51 @@ router.patch(
 
 /**
  * @swagger
+ * /users/search:
+ *   post:
+ *     tags:
+ *       - User
+ *     security:
+ *       - Bearer: []
+ *     description: Returns found users
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: user
+ *         description: User object
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/User'
+ *     responses:
+ *       200:
+ *         description: An array of users
+ *         properties:
+ *           content:
+ *             type: array
+ *             items:
+ *               $ref: '#/definitions/User'
+ *       400:
+ *         description: Validation error
+ *         properties:
+ *           error:
+ *             $ref: '#/definitions/Error'
+ *       401:
+ *         description: Unauthorized user
+ */
+router.post(
+    "/users/search",
+    passportConfig.isAuthorized,
+    passportConfig.isAuthenticated,
+    catchErrors(async (req: Request, res: Response) => {
+        const user = validate(req.body, userSchema, true);
+        const result = await userService.searchUsers(user);
+        return resSuccess(200, result);
+    })
+);
+
+/**
+ * @swagger
  * /users/{userId}:
  *   delete:
  *     tags:
@@ -261,6 +312,8 @@ router.patch(
  *         properties:
  *           content:
  *              $ref: '#/definitions/User'
+ *       401:
+ *         description: Unauthorized user
  *       410:
  *         description: User's id is not valid
  *         properties:
