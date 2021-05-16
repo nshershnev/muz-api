@@ -13,7 +13,6 @@ export interface UserModel {
   lastName?: string;
   createdAt?: string | Date;
   updatedAt?: string | Date;
-  token?: string;
 }
 
 export const userSchema = {

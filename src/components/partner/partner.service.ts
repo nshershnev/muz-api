@@ -28,8 +28,8 @@ class PartnerService {
     }
 
     public async getAllPartners(): Promise<Array<PartnerModel>> {
-        const users: Array<PartnerModel> = await partnerRepository.getAllPartners();
-        return users;
+        const partners: Array<PartnerModel> = await partnerRepository.getAllPartners();
+        return partners;
     }
 
     public async searchPartners(partner: PartnerModel) {

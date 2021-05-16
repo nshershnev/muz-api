@@ -14,6 +14,12 @@ const router = Router();
  *        type: string
  *      email:
  *        type: string
+ *      phoneNumber:
+ *        type: string
+ *      instrument:
+ *        type: string
+ *      password:
+ *        type: string
  *      firstName:
  *        type: string
  *      lastName:

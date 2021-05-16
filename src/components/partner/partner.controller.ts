@@ -12,30 +12,114 @@ const router = Router();
  *    properties:
  *      partnerId:
  *        type: string
- *      userId:
+ *      alias:
  *        type: string
- *      searchType:
+ *      category:
  *        type: string
- *      searchFor:
- *        type: string
+ *      isVisible:
+ *        type: boolean
  *      city:
  *        type: string
- *      description:
- *        type: string
- *      requirements:
- *        type: string
- *      vk:
- *        type: string
- *      facebook:
+ *      address:
  *        type: string
  *      phoneNumber:
  *        type: string
+ *      logos:
+ *        type: array
+ *        items:
+ *          $ref: '#/definitions/Logo'
+ *      description:
+ *        type: string
+ *      services:
+ *        type: array
+ *        items:
+ *          $ref: '#/definitions/Service'
+ *      bonuses:
+ *        type: array
+ *        items:
+ *          $ref: '#/definitions/Bonus'
+ *      website:
+ *        type: string
  *      email:
  *        type: string
+ *      liveJornal:
+ *        type: string
+ *      twitter:
+ *        type: string
+ *      facebook:
+ *        type: string
+ *      vk:
+ *        type: string
+ *      instagram:
+ *        type: string
+ *      whatsapp:
+ *        type: string
+ *      capacity:
+ *        type: number
+ *      conditions:
+ *        type: string
+ *      latitude:
+ *        type: string
+ *      longitude:
+ *        type: string
+ *      likes:
+ *        type: array
+ *        items:
+ *          $ref: '#/definitions/Like'
+ *      visits:
+ *        type: array
+ *        items:
+ *          $ref: '#/definitions/Visit'
  *      createdAt:
  *        type: string
  *        format: date-time
  *      updatedAt:
+ *        type: string
+ *        format: date-time
+ *   Logo:
+ *    properties:
+ *      logoId:
+ *        type: string
+ *      url:
+ *        type: string
+ *      description:
+ *        type: string
+ *      extension:
+ *        type: string
+ *   Service:
+ *    properties:
+ *      serviceId:
+ *        type: string
+ *      tags:
+ *        type: string
+ *      desription:
+ *        type: string
+ *   Bonus:
+ *    properties:
+ *      bonusId:
+ *        type: string
+ *      description:
+ *        type: string
+ *      discount:
+ *        type: number
+ *      usageTime:
+ *        type: string
+ *   Like:
+ *    properties:
+ *      likeId:
+ *        type: string
+ *      userId:
+ *        type: string
+ *      createdAt:
+ *        type: string
+ *        format: date-time
+ *   Visit:
+ *    properties:
+ *      visitId:
+ *        type: string
+ *      userId:
+ *        type: string
+ *      createdAt:
  *        type: string
  *        format: date-time
  *   Error:
