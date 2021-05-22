@@ -17,7 +17,7 @@ import {
     UserModel,
     whiteListRepository
 } from "./";
-import { ApiError, generateId } from "../../utils";
+import { ApiError, generateCardNumber, generateId } from "../../utils";
 import config from "../../config/convict";
 
 class UserService {
@@ -29,14 +29,18 @@ class UserService {
             throw new ApiError(userErrorsLib.emailIsAlreadyUsed);
         }
 
+        const users: Array<UserModel> = await userRepository.getAllUsers();
+
         const { password } = user;
         const userId = generateId();
+        const cardNumber = generateCardNumber(users.length + 1, 9, "");
         const currDate = new Date();
 
         const newUser: UserModel = {
             ...user,
             userId,
             password: bcrypt.hashSync(password),
+            cardNumber,
             createdAt: currDate,
             updatedAt: currDate
         };

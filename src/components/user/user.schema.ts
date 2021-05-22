@@ -7,6 +7,7 @@ export interface UserModel {
   userId?: string;
   email?: string;
   proneNumber?: string;
+  cardNumber?: string;
   instrument?: string;
   password?: string;
   firstName?: string;
