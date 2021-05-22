@@ -3,6 +3,7 @@ import { isEmpty } from "lodash";
 import * as passport from "passport";
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcrypt-nodejs";
+import * as nodemailer from "nodemailer";
 
 import {
     AccessTokenModel,
@@ -138,6 +139,36 @@ class UserService {
     public async getGenres(): Promise<Array<GenreModel>> {
         const genres: Array<GenreModel> = await genreRepository.getAllGenres();
         return genres;
+    }
+
+    public async restoreUser(user: UserModel) {
+        const isUserExists = await userRepository.getUserByEmail(user.email);
+
+        if (!isUserExists) {
+            throw new ApiError(userErrorsLib.userNotFound);
+        }
+
+        const { cardNumber, email } = isUserExists;
+
+        const transporter = nodemailer.createTransport({
+            host: "smtp.ethereal.email",
+            port: 587,
+            secure: false,
+            auth: {
+                user: config.get("mailing.email"),
+                pass: config.get("mailing.password"),
+            },
+        });
+
+        const mailOptions = {
+            from: config.get("mailing.email"),
+            to: email,
+            subject: "Restore card number - Musicians of Russia",
+            text: `Here is you card number - ${cardNumber}. Please use it to log in.`
+        };
+
+        await transporter.sendMail(mailOptions);
+        return { message: `Success! Card number has been sent to your email - ${email}` };
     }
 
     public login(req: Request, res: Response, next: NextFunction) {

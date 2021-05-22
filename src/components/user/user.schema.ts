@@ -45,6 +45,20 @@ export const userSchema = {
   additionalProperties: false
 };
 
+export const restoreUserSchema = {
+  type: "object",
+  properties: {
+    email: {
+      type: "string",
+      pattern: rules.email.source,
+      minLength: 9,
+      maxLength: 255
+    },
+  },
+  required: ["email"],
+  additionalProperties: false
+};
+
 export const registerSchema = {
   type: "object",
   properties: {

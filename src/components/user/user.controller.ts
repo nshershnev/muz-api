@@ -1,6 +1,14 @@
 import { NextFunction, Router, Request, Response } from "express";
 import { ApiError, catchErrors, isUuidValid, resSuccess, validate } from "../../utils";
-import { loginSchema, registerSchema, userErrorsLib, UserModel, userSchema, userService } from "./";
+import {
+    loginSchema,
+    registerSchema,
+    restoreUserSchema,
+    userErrorsLib,
+    UserModel,
+    userSchema,
+    userService
+} from "./";
 import * as passportConfig from "../../config/passport";
 
 const router = Router();
@@ -25,6 +33,10 @@ const router = Router();
  *      genitiveTitle:
  *        type: string
  *      genetiveForArtistTitle:
+ *        type: string
+ *   RestoreUser:
+ *    properties:
+ *      email:
  *        type: string
  *   User:
  *    properties:
@@ -309,6 +321,48 @@ router.post(
     catchErrors(async (req: Request, res: Response) => {
         const user = validate(req.body, userSchema, true);
         const result = await userService.searchUsers(user);
+        return resSuccess(200, result);
+    })
+);
+
+
+/**
+ * @swagger
+ * /users/restore/card:
+ *   post:
+ *     tags:
+ *       - User
+ *     description: Restore user
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: user
+ *         description: Restore User object
+ *         in: body
+ *         required: true
+ *         schema:
+ *           $ref: '#/definitions/RestoreUser'
+ *     responses:
+ *       200:
+ *         description: Card number has been sent to your email
+ *         properties:
+ *           content:
+ *             properties:
+ *               message:
+ *                 type: string
+ *       400:
+ *         description: Validation error
+ *         properties:
+ *           error:
+ *             $ref: '#/definitions/Error'
+ *       401:
+ *         description: Unauthorized user
+ */
+ router.post(
+    "/users/restore/card",
+    catchErrors(async (req: Request, res: Response) => {
+        const user = validate(req.body, restoreUserSchema, true);
+        const result = await userService.restoreUser(user);
         return resSuccess(200, result);
     })
 );

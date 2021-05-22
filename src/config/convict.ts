@@ -25,7 +25,12 @@ const environmentSchema: any = {
         ACCESS_TOKEN_EXPIRES_TIME_MINS: {
             type: "string",
             pattern: rules.number.source
-        }
+        },
+        MAILING_EMAIL: {
+            type: "string",
+            pattern: rules.email.source
+        },
+        MAILING_PASSWORD: { type: "string" },
     },
     additionalProperties: true,
     required: []
@@ -74,6 +79,10 @@ class EnvValidation {
                 db: {
                     uri: this.addConfigVariable("MONGODB_URI", "Mongodb URI."),
                     name: this.addConfigVariable("DB_NAME", "Mongodb database name.")
+                },
+                mailing: {
+                    email: this.addConfigVariable("MAILING_EMAIL", "Mailing email."),
+                    password: this.addConfigVariable("MAILING_PASSWORD", "Mailing password."),
                 }
             });
         }

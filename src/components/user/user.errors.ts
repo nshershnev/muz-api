@@ -37,6 +37,10 @@ export const userErrorsLib: ErrorLibrary = {
         status: 500,
         message: "User is not created"
     },
+    mailIsNotSent: {
+        status: 500,
+        message: "Email is not sent"
+    },
     tokenIsNotCreated: {
         status: 500,
         message: "Token is not created"
