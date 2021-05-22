@@ -8,6 +8,8 @@ import {
     AccessTokenModel,
     CityModel,
     cityRepository,
+    GenreModel,
+    genreRepository,
     InstrumentModel,
     instrumentRepository,
     userErrorsLib,
@@ -127,6 +129,11 @@ class UserService {
     public async getInstruments(): Promise<Array<InstrumentModel>> {
         const instruments: Array<InstrumentModel> = await instrumentRepository.getAllInstruments();
         return instruments;
+    }
+
+    public async getGenres(): Promise<Array<GenreModel>> {
+        const genres: Array<GenreModel> = await genreRepository.getAllGenres();
+        return genres;
     }
 
     public login(req: Request, res: Response, next: NextFunction) {

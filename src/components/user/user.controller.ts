@@ -12,6 +12,12 @@ const router = Router();
  *    properties:
  *      name:
  *        type: string
+ *   Genre:
+ *    properties:
+ *      name:
+ *        type: string
+ *      additionalName:
+ *        type: string
  *   Instrument:
  *    properties:
  *      title:
@@ -359,7 +365,7 @@ router.delete(
  * /cities:
  *   get:
  *     tags:
- *       - Cities
+ *       - City
  *     description: Returns cities
  *     produces:
  *       - application/json
@@ -377,8 +383,8 @@ router.delete(
 router.get(
     "/cities",
     catchErrors(async (req: Request, res: Response) => {
-        const statuses = await userService.getCities();
-        return resSuccess(200, statuses);
+        const cities = await userService.getCities();
+        return resSuccess(200, cities);
     })
 );
 
@@ -387,7 +393,7 @@ router.get(
  * /instruments:
  *   get:
  *     tags:
- *       - Instruments
+ *       - Instrument
  *     description: Returns instruments
  *     produces:
  *       - application/json
@@ -405,8 +411,36 @@ router.get(
 router.get(
     "/instruments",
     catchErrors(async (req: Request, res: Response) => {
-        const statuses = await userService.getInstruments();
-        return resSuccess(200, statuses);
+        const instruments = await userService.getInstruments();
+        return resSuccess(200, instruments);
+    })
+);
+
+/**
+ * @swagger
+ * /genres:
+ *   get:
+ *     tags:
+ *       - Genre
+ *     description: Returns genres
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: An array of genres
+ *         properties:
+ *           content:
+ *             type: array
+ *             items:
+ *               $ref: '#/definitions/Genres'
+ *       401:
+ *         description: Unauthorized user
+ */
+ router.get(
+    "/genres",
+    catchErrors(async (req: Request, res: Response) => {
+        const genres = await userService.getGenres();
+        return resSuccess(200, genres);
     })
 );
 

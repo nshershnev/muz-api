@@ -1,5 +1,7 @@
 export * from "./city.model";
 export * from "./city.repository";
+export * from "./genre.model";
+export * from "./genre.repository";
 export * from "./instrument.model";
 export * from "./instrument.repository";
 export * from "./user.repository";
