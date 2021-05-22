@@ -464,4 +464,71 @@ router.post(
     })
 );
 
+/**
+ * @swagger
+ * /partners/{partnerId}/likes:
+ *   delete:
+ *     tags:
+ *       - Partner
+ *     security:
+ *       - Bearer: []
+ *     description: Returns an updated partner
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: partnerId
+ *         description: Partner's id
+ *         in: path
+ *         required: true
+ *         type: string
+ *       - name: like
+ *         description: Partner's like
+ *         in: body
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             userId:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: Empty object
+ *         properties:
+ *           content:
+ *             type: object
+ *       400:
+ *         description: Validation error
+ *         properties:
+ *           error:
+ *             $ref: '#/definitions/Error'
+ *       401:
+ *         description: Unauthorized user
+ *       404:
+ *         description: Partner not found
+ *         properties:
+ *           error:
+ *             $ref: '#/definitions/Error'
+ *       410:
+ *         description: Partner's id is not valid
+ *         properties:
+ *           error:
+ *             $ref: '#/definitions/Error'
+ */
+router.delete(
+    "partners/:partnerId/likes",
+    passportConfig.isAuthorized,
+    passportConfig.isAuthenticated,
+    catchErrors(async (req: Request, res: Response) => {
+        const { partnerId } = req.params;
+
+        if (!isUuidValid(partnerId)) {
+            throw new ApiError(partnerErrorsLib.partnerIdIsNotValid);
+        }
+
+        const like = validate(req.body, likeSchema);
+        const result = await partnerService.removeLikeById(partnerId, like);
+        return resSuccess(200, result);
+    })
+);
+
 export const partnerController = router;

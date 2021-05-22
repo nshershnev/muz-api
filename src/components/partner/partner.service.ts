@@ -58,7 +58,7 @@ class PartnerService {
         return { message: `Success! Partner with ${removedPartner.partnerId} was removed` };
     }
 
-    public async addLikeById(partnerId: string, like: LikeModel): Promise<any> {
+    public async addLikeById(partnerId: string, like: LikeModel) {
         const likeId = generateId();
         const currDate = new Date();
 
@@ -69,6 +69,11 @@ class PartnerService {
         };
 
         const updatedPartner: any = await partnerRepository.addLikeById(partnerId, newLike);
+        return {};
+    }
+
+    public async removeLikeById(partnerId: string, like: LikeModel) {
+        const updatedPartner: any = await partnerRepository.removeLikeById(partnerId, like);
         return {};
     }
 }

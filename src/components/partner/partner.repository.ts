@@ -86,6 +86,21 @@ class PartnerRepository {
 
         return like;
     }
+
+    public async removeLikeById(partnerId: string, like: LikeModel) {
+        const res = await db.Context
+            .collection(MONGO_COLLECTIONS.PARTHNERS_COLLECTION)
+            .updateOne(
+                { partnerId },
+                { $pull: { likes: like } }
+            );
+
+        if (!res.matchedCount) {
+            throw new ApiError(partnerErrorsLib.partnerNotFound);
+        }
+
+        return like;
+    }
 }
 
 export const partnerRepository = new PartnerRepository();
