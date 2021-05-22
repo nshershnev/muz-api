@@ -344,6 +344,70 @@ router.delete(
 
 /**
  * @swagger
+ * /cities:
+ *   get:
+ *     tags:
+ *       - Cities
+ *     security:
+ *       - Bearer: []
+ *     description: Returns cities
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: City object
+ *         properties:
+ *           content:
+ *             type: array
+ *             items:
+ *               type: string
+ *       401:
+ *         description: Unauthorized user
+ */
+router.get(
+    "/cities",
+    passportConfig.isAuthorized,
+    passportConfig.isAuthenticated,
+    catchErrors(async (req: Request, res: Response) => {
+        const statuses = await userService.getCities();
+        return resSuccess(200, statuses);
+    })
+);
+
+/**
+ * @swagger
+ * /instruments:
+ *   get:
+ *     tags:
+ *       - Instruments
+ *     security:
+ *       - Bearer: []
+ *     description: Returns instruments
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: Instrument object
+ *         properties:
+ *           content:
+ *             type: array
+ *             items:
+ *               type: string
+ *       401:
+ *         description: Unauthorized user
+ */
+router.get(
+    "/instruments",
+    passportConfig.isAuthorized,
+    passportConfig.isAuthenticated,
+    catchErrors(async (req: Request, res: Response) => {
+        const statuses = await userService.getInstruments();
+        return resSuccess(200, statuses);
+    })
+);
+
+/**
+ * @swagger
  * /login:
  *   post:
  *     tags:

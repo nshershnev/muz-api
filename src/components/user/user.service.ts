@@ -4,7 +4,17 @@ import * as passport from "passport";
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcrypt-nodejs";
 
-import { AccessTokenModel, userErrorsLib, userRepository, UserModel, whiteListRepository } from "./";
+import {
+    AccessTokenModel,
+    CityModel,
+    cityRepository,
+    InstrumentModel,
+    instrumentRepository,
+    userErrorsLib,
+    userRepository,
+    UserModel,
+    whiteListRepository
+} from "./";
 import { ApiError, generateId } from "../../utils";
 import config from "../../config/convict";
 
@@ -107,6 +117,16 @@ class UserService {
             console.log(err.message);
         }
         return isValidToken;
+    }
+
+    public async getCities(): Promise<Array<CityModel>> {
+        const cities: Array<CityModel> = await cityRepository.getAllCities();
+        return cities;
+    }
+
+    public async getInstruments(): Promise<Array<InstrumentModel>> {
+        const instruments: Array<InstrumentModel> = await instrumentRepository.getAllInstruments();
+        return instruments;
     }
 
     public login(req: Request, res: Response, next: NextFunction) {
