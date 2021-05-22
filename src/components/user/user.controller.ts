@@ -432,7 +432,7 @@ router.get(
  *           content:
  *             type: array
  *             items:
- *               $ref: '#/definitions/Genres'
+ *               $ref: '#/definitions/Genre'
  *       401:
  *         description: Unauthorized user
  */
