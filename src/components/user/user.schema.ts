@@ -99,16 +99,13 @@ export const registerSchema = {
 export const loginSchema = {
   type: "object",
   properties: {
-    email: {
+    username: {
       type: "string",
-      pattern: rules.email.source,
-      minLength: 9,
-      maxLength: 255
     },
     password: {
       type: "string"
     },
   },
-  required: ["email", "password"],
+  required: ["username", "password"],
   additionalProperties: false
 };

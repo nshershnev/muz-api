@@ -73,6 +73,11 @@ class UserService {
         return user;
     }
 
+    public async getUserByPhoneNumber(phoneNumber: string): Promise<UserModel> {
+        const user: UserModel = await userRepository.getUserByPhoneNumber(phoneNumber);
+        return user;
+    }
+
     public async getAllUsers(): Promise<Array<UserModel>> {
         const users: Array<UserModel> = await userRepository.getAllUsers();
         return users;

@@ -26,24 +26,28 @@ export const initStrategies = async (req: Request, res: Response, next: NextFunc
     }
   });
 
-  const checkUserInDB = async (u: UserModel, done: any, compareSync: any) => {
-    const user: any = await userService.getUserByEmail(u.email.toLowerCase());
+  const checkUserInDB = async (u: any, done: any, compareSync: any) => {
+    const userByEmail = await userService.getUserByEmail(u.username.toLowerCase());
+    const userByPhoneNumber = await userService.getUserByPhoneNumber(u.username);
+
+    const user: UserModel = userByEmail || userByPhoneNumber;
+
     if (!user) {
-      return done(undefined, false, `Email ${u.email} not found`);
+      return done(undefined, false, `User not found`);
     }
     else {
       if (compareSync(u.password, user.password)) {
         return done(undefined, user);
       }
       else {
-        return done(undefined, false, "Invalid email or password");
+        return done(undefined, false, "Invalid credentials");
       }
     }
   };
 
-  passport.use(new LocalStrategy({ usernameField: "email" },
-    async (email: string, password: string, done: any) => {
-      const user: UserModel = { email, password };
+  passport.use(new LocalStrategy({ usernameField: "username" },
+    async (username: string, password: string, done: any) => {
+      const user: any = { username, password };
       await checkUserInDB(user, done, (a: string, b: string) => bcrypt.compareSync(a, b));
     })
   );
@@ -89,7 +93,7 @@ export const isAuthorized = (req: Request, res: Response, next: NextFunction) =>
 
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   if (req.isAuthenticated()) {
-     next();
+    next();
   }
   else {
     const response = {

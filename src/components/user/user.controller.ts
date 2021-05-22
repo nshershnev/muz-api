@@ -62,7 +62,7 @@ const router = Router();
  *        format: date-time
  *   Login:
  *    properties:
- *      email:
+ *      username:
  *        type: string
  *      password:
  *        type: string
