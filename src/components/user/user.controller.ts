@@ -179,6 +179,8 @@ router.get(
  *           properties:
  *             email:
  *               type: string
+ *             phoneNumber:
+ *               type: string
  *             password:
  *               type: string
  *             firstName:

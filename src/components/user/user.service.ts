@@ -25,9 +25,19 @@ class UserService {
     private accessTokenExpiresTimeMins: number = Number(config.get("expireTime.accessToken"));
 
     public async addUser(user: UserModel) {
-        const isEmailExists = await userRepository.getUserByEmail(user.email);
-        if (isEmailExists) {
-            throw new ApiError(userErrorsLib.emailIsAlreadyUsed);
+
+        if (user.email && user.email.length > 0) {
+            const isEmailExists = await userRepository.getUserByEmail(user.email);
+            if (isEmailExists) {
+                throw new ApiError(userErrorsLib.emailIsAlreadyUsed);
+            }
+        }
+
+        if (user.phoneNumber && user.phoneNumber.length > 0) {
+            const isPhoneNumberExists = await userRepository.getUserByPhoneNumber(user.phoneNumber);
+            if (isPhoneNumberExists) {
+                throw new ApiError(userErrorsLib.phoneNumberIsAlreadyUsed);
+            }
         }
 
         const users: Array<UserModel> = await userRepository.getAllUsers();
@@ -47,7 +57,7 @@ class UserService {
         };
 
         const addedUser: UserModel = await userRepository.addUser(newUser);
-        return { message: `Success! User with ${addedUser.email} was created` };
+        return { message: `Success! User with ${addedUser.email || addedUser.phoneNumber} was created` };
     }
 
     public async getUserById(userId: string): Promise<UserModel> {

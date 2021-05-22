@@ -6,7 +6,7 @@ export interface UserModel {
   _id?: string | ObjectId;
   userId?: string;
   email?: string;
-  proneNumber?: string;
+  phoneNumber?: string;
   cardNumber?: string;
   instrument?: string;
   password?: string;
@@ -68,6 +68,10 @@ export const registerSchema = {
       minLength: 9,
       maxLength: 255
     },
+    phoneNumber: {
+      type: "string",
+      pattern: rules.phoneNumber.source,
+    },
     firstName: {
       type: "string",
       pattern: rules.plainString.source
@@ -80,7 +84,15 @@ export const registerSchema = {
       type: "string"
     },
   },
-  required: ["email", "password"],
+  anyOf: [
+    { required: ["email"] },
+    { required: ["phoneNumber"]}
+  ],
+  allOf: [
+    { required: ["firstName"] },
+    { required: ["lastName"] },
+    { required: ["password"] }
+  ],
   additionalProperties: false
 };
 

@@ -22,6 +22,12 @@ class UserRepository {
             .findOne({ email });
     }
 
+    public async getUserByPhoneNumber(phoneNumber: string): Promise<UserModel> {
+        return db.Context
+            .collection(MONGO_COLLECTIONS.USERS_COLLECTION)
+            .findOne({ phoneNumber });
+    }
+
     public async getAllUsers(): Promise<Array<UserModel>> {
         return db.Context
             .collection(MONGO_COLLECTIONS.USERS_COLLECTION)

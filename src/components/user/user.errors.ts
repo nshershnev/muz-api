@@ -25,6 +25,10 @@ export const userErrorsLib: ErrorLibrary = {
         status: 409,
         message: "Email is already used"
     },
+    phoneNumberIsAlreadyUsed: {
+        status: 409,
+        message: "Phone number is already used"
+    },
     tokenIsNotValid: {
         status: 410,
         message: "Token is not valid"
