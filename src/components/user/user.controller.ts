@@ -8,6 +8,18 @@ const router = Router();
 /**
  * @swagger
  * definitions:
+ *   City:
+ *    properties:
+ *      name:
+ *        type: string
+ *   Instrument:
+ *    properties:
+ *      title:
+ *        type: string
+ *      genitiveTitle:
+ *        type: string
+ *      genetiveForArtistTitle:
+ *        type: string
  *   User:
  *    properties:
  *      userId:
@@ -348,26 +360,22 @@ router.delete(
  *   get:
  *     tags:
  *       - Cities
- *     security:
- *       - Bearer: []
  *     description: Returns cities
  *     produces:
  *       - application/json
  *     responses:
  *       200:
- *         description: City object
+ *         description: An array of cities
  *         properties:
  *           content:
  *             type: array
  *             items:
- *               type: string
+ *               $ref: '#/definitions/City'
  *       401:
  *         description: Unauthorized user
  */
 router.get(
     "/cities",
-    passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
     catchErrors(async (req: Request, res: Response) => {
         const statuses = await userService.getCities();
         return resSuccess(200, statuses);
@@ -380,26 +388,22 @@ router.get(
  *   get:
  *     tags:
  *       - Instruments
- *     security:
- *       - Bearer: []
  *     description: Returns instruments
  *     produces:
  *       - application/json
  *     responses:
  *       200:
- *         description: Instrument object
+ *         description: An array of instruments
  *         properties:
  *           content:
  *             type: array
  *             items:
- *               type: string
+ *               $ref: '#/definitions/Instrument'
  *       401:
  *         description: Unauthorized user
  */
 router.get(
     "/instruments",
-    passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
     catchErrors(async (req: Request, res: Response) => {
         const statuses = await userService.getInstruments();
         return resSuccess(200, statuses);
