@@ -10,6 +10,7 @@ import {
     userService
 } from "./";
 import * as passportConfig from "../../config/passport";
+import { UserRole } from "../../shared/enums";
 
 const router = Router();
 
@@ -97,7 +98,7 @@ const router = Router();
 router.get(
     "/users",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const users = await userService.getAllUsers();
         return resSuccess(200, users);
@@ -143,7 +144,7 @@ router.get(
 router.get(
     "/users/:userId",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const { userId } = req.params;
 
@@ -260,7 +261,7 @@ router.post(
 router.patch(
     "/users/:userId",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const { userId } = req.params;
 
@@ -319,7 +320,7 @@ router.patch(
 router.post(
     "/users/search",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const user = validate(req.body, userSchema, true);
         const result = await userService.searchUsers(user);
@@ -403,7 +404,7 @@ router.post(
 router.delete(
     "/users/:userId",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN]),
     catchErrors(async (req: Request, res: Response) => {
         const { userId } = req.params;
 
@@ -502,6 +503,38 @@ router.get(
 
 /**
  * @swagger
+ * /roles:
+ *   get:
+ *     tags:
+ *       - Roles
+ *     security:
+ *       - Bearer: []
+ *     description: Returns roles
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: Roles object
+ *         properties:
+ *           content:
+ *             type: array
+ *             items:
+ *               type: string
+ *       401:
+ *         description: Unauthorized user
+ */
+router.get(
+    "/roles",
+    passportConfig.isAuthorized,
+    passportConfig.isPermissed([UserRole.ADMIN]),
+    catchErrors(async (req: Request, res: Response) => {
+        const roles = userService.getRoles();
+        return resSuccess(200, roles);
+    })
+);
+
+/**
+ * @swagger
  * /login:
  *   post:
  *     tags:
@@ -583,7 +616,6 @@ router.post(
 router.get(
     "/logout",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
     catchErrors(async (req: Request, res: Response) => {
         const result = await userService.logout(req.get("authorization"));
         return resSuccess(200, result);

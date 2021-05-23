@@ -1,6 +1,8 @@
 import { isEmpty } from "lodash";
 
+import { UserRole } from "../../shared/enums";
 import { ApiError, generateId } from "../../utils";
+import { userErrorsLib, UserModel } from "../user";
 import { vacancyErrorsLib, vacancyRepository, VacancyModel } from "./";
 
 class VacancyService {
@@ -32,9 +34,15 @@ class VacancyService {
         return users;
     }
 
-    public async updateVacancy(vacancyId: string, vacancy: any): Promise<any> {
+    public async updateVacancy(vacancyId: string, vacancy: any, user: UserModel): Promise<any> {
         if (isEmpty(vacancy)) {
             return {};
+        }
+
+        const vacancyToUpdate: VacancyModel = await vacancyRepository.getVacancyById(vacancyId);
+
+        if (vacancyToUpdate.userId !== user.userId && user.role === UserRole.USER) {
+            throw new ApiError(userErrorsLib.notEnoughPermissions);
         }
 
         const currDate = new Date();
@@ -53,7 +61,13 @@ class VacancyService {
         return vacancies;
     }
 
-    public async removeVacancy(vacancyId: string): Promise<any> {
+    public async removeVacancy(vacancyId: string, user: UserModel): Promise<any> {
+        const vacancyToUpdate: VacancyModel = await vacancyRepository.getVacancyById(vacancyId);
+
+        if (vacancyToUpdate.userId !== user.userId && user.role === UserRole.USER) {
+            throw new ApiError(userErrorsLib.notEnoughPermissions);
+        }
+
         const removedVacancy: any = await vacancyRepository.removeVacancy(vacancyId);
         return { message: `Success! Vacancy with ${removedVacancy.vacancyId} was removed` };
     }

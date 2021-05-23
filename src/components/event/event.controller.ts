@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { ApiError, catchErrors, isUuidValid, resSuccess, validate } from "../../utils";
 import { eventErrorsLib, EventModel, eventSchema, eventService } from ".";
 import * as passportConfig from "../../config/passport";
+import { UserRole } from "../../shared/enums";
 
 const router = Router();
 
@@ -66,8 +67,6 @@ const router = Router();
  */
 router.get(
     "/events",
-    passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
     catchErrors(async (req: Request, res: Response) => {
         const events = await eventService.getAllEvents();
         return resSuccess(200, events);
@@ -110,8 +109,6 @@ router.get(
  */
 router.get(
     "/events/:eventId",
-    passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
     catchErrors(async (req: Request, res: Response) => {
         const { eventId } = req.params;
 
@@ -157,7 +154,7 @@ router.get(
 router.post(
     "/events",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN]),
     catchErrors(async (req: Request, res: Response) => {
         const event = validate(req.body, eventSchema);
         const result = await eventService.addEvent(event);
@@ -208,7 +205,7 @@ router.post(
 router.patch(
     "/events/:eventId",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN]),
     catchErrors(async (req: Request, res: Response) => {
         const { eventId } = req.params;
 
@@ -259,8 +256,6 @@ router.patch(
  */
  router.post(
     "/events/search",
-    passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
     catchErrors(async (req: Request, res: Response) => {
         const event = validate(req.body, eventSchema, true);
         const result = await eventService.searchEvents(event);
@@ -300,7 +295,7 @@ router.patch(
 router.delete(
     "/events/:eventId",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN]),
     catchErrors(async (req: Request, res: Response) => {
         const { eventId } = req.params;
 

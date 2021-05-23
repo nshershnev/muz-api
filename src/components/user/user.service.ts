@@ -18,6 +18,7 @@ import {
     UserModel,
     whiteListRepository
 } from "./";
+import { UserRole } from "../../shared/enums";
 import { ApiError, generateCardNumber, generateId } from "../../utils";
 import config from "../../config/convict";
 
@@ -52,6 +53,7 @@ class UserService {
             userId,
             password: bcrypt.hashSync(password),
             cardNumber,
+            role: UserRole.USER,
             createdAt: currDate,
             updatedAt: currDate
         };
@@ -154,6 +156,10 @@ class UserService {
     public async getGenres(): Promise<Array<GenreModel>> {
         const genres: Array<GenreModel> = await genreRepository.getAllGenres();
         return genres;
+    }
+
+    public async getRoles() {
+        return [UserRole.ADMIN, UserRole.USER];
     }
 
     public async restoreUser(user: UserModel) {

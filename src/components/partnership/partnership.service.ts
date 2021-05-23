@@ -1,6 +1,8 @@
 import { isEmpty } from "lodash";
 
+import { UserRole } from "../../shared/enums";
 import { ApiError, generateId } from "../../utils";
+import { userErrorsLib, UserModel } from "../user";
 import { partnershipErrorsLib, partnershipRepository, PartnershipModel } from "./";
 
 class PartnershipService {
@@ -37,9 +39,15 @@ class PartnershipService {
         return partnerships;
     }
 
-    public async updatePartnership(partnershipId: string, partnership: any): Promise<any> {
+    public async updatePartnership(partnershipId: string, partnership: any, user: UserModel): Promise<any> {
         if (isEmpty(partnership)) {
             return {};
+        }
+
+        const partnershipToUpdate: PartnershipModel = await partnershipRepository.getPartnershipById(partnershipId);
+
+        if (partnershipToUpdate.userId !== user.userId && user.role === UserRole.USER) {
+            throw new ApiError(userErrorsLib.notEnoughPermissions);
         }
 
         const currDate = new Date();
@@ -53,7 +61,13 @@ class PartnershipService {
         return updatedPartnership;
     }
 
-    public async removePartnership(partnershipId: string): Promise<any> {
+    public async removePartnership(partnershipId: string, user: UserModel): Promise<any> {
+        const partnershipToRemove: PartnershipModel = await partnershipRepository.getPartnershipById(partnershipId);
+
+        if (partnershipToRemove.userId !== user.userId && user.role === UserRole.USER) {
+            throw new ApiError(userErrorsLib.notEnoughPermissions);
+        }
+
         const removedPartnership: any = await partnershipRepository.removePartnership(partnershipId);
         return { message: `Success! Partnership with ${removedPartnership.partnershipId} was removed` };
     }

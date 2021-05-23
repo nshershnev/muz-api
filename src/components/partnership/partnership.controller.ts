@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { ApiError, catchErrors, isUuidValid, resSuccess, validate } from "../../utils";
 import { partnershipErrorsLib, PartnershipModel, partnershipSchema, partnershipService } from ".";
 import * as passportConfig from "../../config/passport";
+import { UserRole } from "../../shared/enums";
 
 const router = Router();
 
@@ -10,10 +11,6 @@ const router = Router();
  * definitions:
  *   Partnership:
  *    properties:
- *      partnershipId:
- *        type: string
- *      userId:
- *        type: string
  *      searchType:
  *        type: string
  *      searchFor:
@@ -32,12 +29,6 @@ const router = Router();
  *        type: string
  *      email:
  *        type: string
- *      createdAt:
- *        type: string
- *        format: date-time
- *      updatedAt:
- *        type: string
- *        format: date-time
  *   Error:
  *    properties:
  *      message:
@@ -69,7 +60,7 @@ const router = Router();
 router.get(
     "/partnerships",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const partnerships = await partnershipService.getAllPartnerships();
         return resSuccess(200, partnerships);
@@ -115,7 +106,7 @@ router.get(
 router.get(
     "/partnerships/:partnershipId",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const { partnershipId } = req.params;
 
@@ -163,7 +154,7 @@ router.get(
 router.post(
     "/partnerships",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const partnership = validate(req.body, partnershipSchema);
         const result = await partnershipService.addPartnership(partnership);
@@ -216,7 +207,7 @@ router.post(
 router.patch(
     "/partnerships/:partnershipId",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const { partnershipId } = req.params;
 
@@ -225,7 +216,7 @@ router.patch(
         }
 
         const partnership = validate(req.body, partnershipSchema, true);
-        const updatedPartnership = await partnershipService.updatePartnership(partnershipId, partnership);
+        const updatedPartnership = await partnershipService.updatePartnership(partnershipId, partnership, req.user);
 
         return resSuccess(200, updatedPartnership);
     })
@@ -268,7 +259,7 @@ router.patch(
 router.post(
     "/partnerships/search",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const partnership = validate(req.body, partnershipSchema, true);
         const result = await partnershipService.searchPartnerships(partnership);
@@ -310,7 +301,7 @@ router.post(
 router.delete(
     "/partnerships/:partnershipId",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const { partnershipId } = req.params;
 
@@ -318,7 +309,7 @@ router.delete(
             throw new ApiError(partnershipErrorsLib.partnershipIdIsNotValid);
         }
 
-        const result = await partnershipService.removePartnership(partnershipId);
+        const result = await partnershipService.removePartnership(partnershipId, req.user);
         return resSuccess(200, result);
     })
 );

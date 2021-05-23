@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { ApiError, catchErrors, isUuidValid, resSuccess, validate } from "../../utils";
 import { vacancyErrorsLib, VacancyModel, vacancySchema, vacancyService } from ".";
 import * as passportConfig from "../../config/passport";
+import { UserRole } from "../../shared/enums";
 
 const router = Router();
 
@@ -69,7 +70,7 @@ const router = Router();
 router.get(
     "/vacancies",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const vacancies = await vacancyService.getAllVacancies();
         return resSuccess(200, vacancies);
@@ -115,7 +116,7 @@ router.get(
 router.get(
     "/vacancies/:vacancyId",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const { vacancyId } = req.params;
 
@@ -163,7 +164,7 @@ router.get(
 router.post(
     "/vacancies",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const vacancy = validate(req.body, vacancySchema);
         const result = await vacancyService.addVacancy(vacancy);
@@ -216,7 +217,7 @@ router.post(
 router.patch(
     "/vacancies/:vacancyId",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const { vacancyId } = req.params;
 
@@ -225,7 +226,7 @@ router.patch(
         }
 
         const vacancy = validate(req.body, vacancySchema, true);
-        const updatedVacancy = await vacancyService.updateVacancy(vacancyId, vacancy);
+        const updatedVacancy = await vacancyService.updateVacancy(vacancyId, vacancy, req.user);
 
         return resSuccess(200, updatedVacancy);
     })
@@ -268,7 +269,7 @@ router.patch(
  router.post(
     "/vacancies/search",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const vacancy = validate(req.body, vacancySchema, true);
         const result = await vacancyService.searchVacancies(vacancy);
@@ -310,7 +311,7 @@ router.patch(
 router.delete(
     "/vacancies/:vacancyId",
     passportConfig.isAuthorized,
-    passportConfig.isAuthenticated,
+    passportConfig.isPermissed([UserRole.ADMIN, UserRole.USER]),
     catchErrors(async (req: Request, res: Response) => {
         const { vacancyId } = req.params;
 
@@ -318,7 +319,7 @@ router.delete(
             throw new ApiError(vacancyErrorsLib.vacancyIdIsNotValid);
         }
 
-        const result = await vacancyService.removeVacancy(vacancyId);
+        const result = await vacancyService.removeVacancy(vacancyId, req.user);
         return resSuccess(200, result);
     })
 );

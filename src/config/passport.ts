@@ -92,8 +92,16 @@ export const isAuthorized = (req: Request, res: Response, next: NextFunction) =>
   })(req, res, next);
 };
 
-export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+export const isPermissed = (roles: string[] = []) => (req: Request, res: Response, next: NextFunction) => {
   if (req.isAuthenticated()) {
+    if (roles.length > 0 && !roles.includes(req.user.role)) {
+      const response = {
+        error: {
+          message: userErrorsLib.notEnoughPermissions.message
+        }
+      };
+      return res.status(userErrorsLib.notEnoughPermissions.status).json(response);
+    }
     next();
   }
   else {
