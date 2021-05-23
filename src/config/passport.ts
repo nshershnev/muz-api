@@ -27,8 +27,9 @@ export const initStrategies = async (req: Request, res: Response, next: NextFunc
   });
 
   const checkUserInDB = async (u: any, done: any, compareSync: any) => {
-    const userByEmail = await userService.getUserByEmail(u.username.toLowerCase());
-    const userByPhoneNumber = await userService.getUserByPhoneNumber(u.username);
+    const checkProperty = u.username ? u.username : u.email || u.phoneNumber;
+    const userByEmail = await userService.getUserByEmail(checkProperty.toLowerCase());
+    const userByPhoneNumber = await userService.getUserByPhoneNumber(checkProperty);
 
     const user: UserModel = userByEmail || userByPhoneNumber;
 

@@ -16,6 +16,11 @@ export interface UserModel {
   updatedAt?: string | Date;
 }
 
+export interface LoginUserModel {
+  username?: string;
+  password?: string;
+}
+
 export const userSchema = {
   type: "object",
   properties: {
@@ -101,6 +106,8 @@ export const loginSchema = {
   properties: {
     username: {
       type: "string",
+      minLength: 9,
+      maxLength: 255
     },
     password: {
       type: "string"

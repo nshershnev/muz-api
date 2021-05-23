@@ -3,7 +3,7 @@ import { ObjectID } from "mongodb";
 
 import { db, generateId } from "../src/utils";
 import { appAsync } from "../src/app";
-import { UserModel, userErrorsLib } from "../src/components/user";
+import { LoginUserModel, UserModel, userErrorsLib } from "../src/components/user";
 import { MONGO_COLLECTIONS } from "../src/shared/constants";
 
 describe("User", () => {
@@ -16,11 +16,22 @@ describe("User", () => {
 
     const createUser: UserModel = {
         email: "test@example.com",
-        password: "password"
+        password: "password",
+        firstName: "Edison",
+        lastName: "Delaney"
+    };
+
+    const loginUser: LoginUserModel = {
+        username: createUser.email,
+        password: createUser.password
     };
 
     const updateUserData = {
         email: "update@example.com"
+    };
+
+    const searchUser = {
+        email: createUser.email,
     };
 
     beforeAll(async () => {
@@ -37,7 +48,7 @@ describe("User", () => {
             });
 
         await request.post("/api/v1/login")
-            .send(createUser)
+            .send(loginUser)
             .then(({ body: { content } }) => {
                 user = content;
             });
@@ -115,6 +126,18 @@ describe("User", () => {
                 });
         });
 
+        it(`should return ${userErrorsLib.userNotFound.message}`, () => {
+            const testId = generateId();
+            return request.get(`/api/v1/users/${testId}`)
+                .set({ Authorization: user.token })
+                .expect(userErrorsLib.userNotFound.status)
+                .then(({ body }) => {
+                    expect(body).toHaveProperty("error");
+                    const error = body.error;
+                    expect(error).toHaveProperty("message", userErrorsLib.userNotFound.message);
+                });
+        });
+
         it(`should return ${userErrorsLib.userIdIsNotValid.message}`, () => {
             const testId = new ObjectID();
             return request.get(`/api/v1/users/${testId}`)
@@ -126,15 +149,76 @@ describe("User", () => {
                     expect(error).toHaveProperty("message", userErrorsLib.userIdIsNotValid.message);
                 });
         });
+    });
 
-        it(`should return ${userErrorsLib.userIdIsNotValid.message}`, () => {
-            return request.get("/api/v1/users/1")
+    describe("POST /api/v1/users/search", () => {
+
+        it("should return User by search object", () => {
+            return request.post("/api/v1/users/search")
                 .set({ Authorization: user.token })
-                .expect(userErrorsLib.userIdIsNotValid.status)
+                .send(searchUser)
+                .expect(200)
+                .then(({ body }) => {
+                    expect(body).toHaveProperty("content");
+                    const content = body.content;
+                    const isDefined = content.find(u => u.email === user.email);
+                    expect(isDefined).toBeDefined();
+                });
+        });
+
+        it(`should return ${userErrorsLib.unauthorized.message}`, () => {
+            return request.post("/api/v1/users/search")
+                .expect(userErrorsLib.unauthorized.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
                     const error = body.error;
-                    expect(error).toHaveProperty("message", userErrorsLib.userIdIsNotValid.message);
+                    expect(error).toHaveProperty("message", userErrorsLib.unauthorized.message);
+                });
+        });
+
+        it("should return Validation error", () => {
+            return request.post("/api/v1/users/search")
+                .set({ Authorization: user.token })
+                .send({ email: "" })
+                .then(({ body: { error } }) => {
+                    const [minLength] = error.errors;
+                    expect(minLength).toHaveProperty("keyword", "minLength");
+                    expect(minLength).toHaveProperty("message", "should NOT be shorter than 9 characters");
+                });
+        });
+    });
+
+    describe("POST /api/v1/users/retore/card", () => {
+        it("should send email to User to restore card  number", () => {
+            return request.post("/api/v1/users/restore/card")
+                .expect(200)
+                .send({ email: user.email })
+                .then(({ body }) => {
+                    expect(body).toHaveProperty("content");
+                    const content = body.content;
+                    expect(content).toHaveProperty("message", `Success! Card number has been sent to your email - ${user.email}`);
+                });
+        });
+
+        it(`should return ${userErrorsLib.userNotFound.message}`, () => {
+            return request.post("/api/v1/users/restore/card")
+                .expect(userErrorsLib.userNotFound.status)
+                .send({ email: "search@example.com" })
+                .then(({ body }) => {
+                    expect(body).toHaveProperty("error");
+                    const error = body.error;
+                    expect(error).toHaveProperty("message", userErrorsLib.userNotFound.message);
+                });
+        });
+
+        it("should return Validation error", () => {
+            return request.post("/api/v1/users/restore/card")
+                .set({ Authorization: user.token })
+                .send({ email: "" })
+                .then(({ body: { error } }) => {
+                    const [minLength] = error.errors;
+                    expect(minLength).toHaveProperty("keyword", "minLength");
+                    expect(minLength).toHaveProperty("message", "should NOT be shorter than 9 characters");
                 });
         });
     });
@@ -213,6 +297,54 @@ describe("User", () => {
                     expect(body).toHaveProperty("error");
                     const error = body.error;
                     expect(error).toHaveProperty("message", userErrorsLib.unauthorized.message);
+                });
+        });
+
+    });
+
+    describe("DELETE /api/v1/users/:userId", () => {
+
+        it("should login again", () => {
+            return request.post("/api/v1/login")
+                .send({
+                    ...loginUser,
+                    username: updateUserData.email
+                })
+                .then(({ body: { content } }) => {
+                    user = content;
+                });
+        });
+
+        it(`should return ${userErrorsLib.userNotFound.message}`, () => {
+            const testId = generateId();
+            return request.delete(`/api/v1/users/${testId}`)
+                .set({ Authorization: user.token })
+                .expect(userErrorsLib.userNotFound.status)
+                .then(({ body }) => {
+                    expect(body).toHaveProperty("error");
+                    const error = body.error;
+                    expect(error).toHaveProperty("message", userErrorsLib.userNotFound.message);
+                });
+        });
+
+        it(`should return ${userErrorsLib.unauthorized.message}`, () => {
+            return request.delete(`/api/v1/users/${user.userId}`)
+                .expect(userErrorsLib.unauthorized.status)
+                .then(({ body }) => {
+                    expect(body).toHaveProperty("error");
+                    const error = body.error;
+                    expect(error).toHaveProperty("message", userErrorsLib.unauthorized.message);
+                });
+        });
+
+        it(`should return ${userErrorsLib.userIdIsNotValid.message}`, () => {
+            return request.delete("/api/v1/users/1")
+                .set({ Authorization: user.token })
+                .expect(userErrorsLib.userIdIsNotValid.status)
+                .then(({ body }) => {
+                    expect(body).toHaveProperty("error");
+                    const error = body.error;
+                    expect(error).toHaveProperty("message", userErrorsLib.userIdIsNotValid.message);
                 });
         });
 

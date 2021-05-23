@@ -2,7 +2,7 @@ import * as supertest from "supertest";
 
 import { db } from "../src/utils";
 import { appAsync } from "../src/app";
-import { UserModel, userErrorsLib } from "../src/components/user";
+import { LoginUserModel, UserModel, userErrorsLib } from "../src/components/user";
 import { MONGO_COLLECTIONS } from "../src/shared/constants";
 
 describe("Authorization", () => {
@@ -14,7 +14,14 @@ describe("Authorization", () => {
 
 	const user: UserModel = {
 		email: "test@example.com",
-		password: "password"
+		password: "password",
+		firstName: "Edison",
+		lastName: "Delaney"
+	};
+
+	const loginUser: LoginUserModel = {
+		username: user.email,
+		password: user.password
 	};
 
 	beforeAll(async () => {
@@ -33,7 +40,7 @@ describe("Authorization", () => {
 	describe("POST /api/v1/login", () => {
 		it("should return Success! You are logged in", () => {
 			return request.post("/api/v1/login")
-				.send(user)
+				.send(loginUser)
 				.then(({ body: { content } }) => {
 					expect(content).toHaveProperty("token");
 				});
@@ -42,12 +49,11 @@ describe("Authorization", () => {
 		it("should return Validation error", () => {
 			return request.post("/api/v1/login")
 				.send({
-					email: "",
+					username: "",
 					password: ""
 				})
 				.then(({ body: { error } }) => {
-					const [minLength, pattern] = error.errors;
-					expect(pattern).toHaveProperty("keyword", "pattern");
+					const [minLength] = error.errors;
 
 					expect(minLength).toHaveProperty("keyword", "minLength");
 					expect(minLength).toHaveProperty("message", "should NOT be shorter than 9 characters");
@@ -57,7 +63,7 @@ describe("Authorization", () => {
 		it("should return Incorrect username or password", () => {
 			return request.post("/api/v1/login")
 				.send({
-					email: "example@test.com",
+					username: "example@test.com",
 					password: "password",
 				})
 				.then(({ body: { error } }) => {
