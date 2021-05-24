@@ -5,15 +5,15 @@ import { ObjectID } from "mongodb";
 import { db, generateId } from "../src/utils";
 import { appAsync } from "../src/app";
 import { LoginUserModel, UserModel, userErrorsLib, userRepository } from "../src/components/user";
-import { EventModel, eventErrorsLib } from "../src/components/event";
+import { VacancyModel, vacancyErrorsLib } from "../src/components/vacancy";
 import { MONGO_COLLECTIONS } from "../src/shared/constants";
 
-describe("Event", () => {
+describe("Vacancy", () => {
     let request: any;
     let user: any;
 
     const createUser: UserModel = {
-        email: "event@example.com",
+        email: "vacancy@example.com",
         password: "password",
         firstName: "Edison",
         lastName: "Delaney"
@@ -23,7 +23,7 @@ describe("Event", () => {
     const userId = generateId();
 
     const createUserWithDb: UserModel = {
-        email: "event@example.com",
+        email: "vacancy@example.com",
         userId,
         password: bcrypt.hashSync("password"),
         firstName: "Edison",
@@ -38,27 +38,26 @@ describe("Event", () => {
         password: createUser.password
     };
 
-    let event: EventModel = {
-        description: "My personal event",
-        date: currDate,
-        address: "Vozdvizhenka Street, 10, Moscow, 125009, Russian Federation",
-        city: "Moscow"
+    let vacancy: VacancyModel = {
+        description: "We are looking for a good specialist",
+        searchType: "Artist search band",
+        searchFor: "Electric guitarist looking for a band"
     };
 
-    const updateEvent = {
-        description: "My new personal event"
+    const updateVacancy = {
+        description: "My new personal specialit"
     };
 
-    const searchEvent = {
-        ...updateEvent,
+    const searchVacancy = {
+        ...updateVacancy,
     };
 
     const removeUserWithTestEmail = async (email: string) => {
         await db.Context.collection(MONGO_COLLECTIONS.USERS_COLLECTION).deleteOne({ email });
     };
 
-    const removeTestEvent = async (description: string) => {
-        await db.Context.collection(MONGO_COLLECTIONS.EVENTS_COLLECTION).deleteOne({ description });
+    const removeTestVacancy = async (description: string) => {
+        await db.Context.collection(MONGO_COLLECTIONS.VACANCIES_COLLECTION).deleteOne({ description });
     };
 
     beforeAll(async () => {
@@ -66,7 +65,7 @@ describe("Event", () => {
         request = supertest(app);
 
         await removeUserWithTestEmail(createUser.email);
-        await removeTestEvent(event.description);
+        await removeTestVacancy(vacancy.description);
 
         await userRepository.addUser(createUserWithDb);
 
@@ -77,9 +76,9 @@ describe("Event", () => {
             });
     });
 
-    describe("POST /api/v1/events", () => {
+    describe("POST /api/v1/vacancies", () => {
         it(`should return ${userErrorsLib.unauthorized.message}`, () => {
-            return request.post("/api/v1/events")
+            return request.post("/api/v1/vacancies")
                 .expect(userErrorsLib.unauthorized.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
@@ -88,111 +87,123 @@ describe("Event", () => {
                 });
         });
 
-        it("should return new created Event", () => {
-            return request.post("/api/v1/events")
+        it("should return new created Vacancy", () => {
+            return request.post("/api/v1/vacancies")
                 .set({ Authorization: user.token })
-                .send(event)
+                .send(vacancy)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("content");
                     const content = body.content;
-                    event = { ...event, ...content };
-                    expect(content).toHaveProperty("description", event.description);
+                    vacancy = { ...vacancy, ...content };
+                    expect(content).toHaveProperty("description", vacancy.description);
                 });
         });
 
         it("should return Validation error", () => {
-            return request.post("/api/v1/events")
+            return request.post("/api/v1/vacancies")
                 .set({ Authorization: user.token })
-                .send({
-                    description: "",
-                    date: ""
-                })
+                .send({ description: "" })
                 .then(({ body: { error } }) => {
-                    const [requiredCity, requiredAddress] = error.errors;
-                    expect(requiredCity).toHaveProperty("keyword", "required");
-                    expect(requiredAddress).toHaveProperty("keyword", "required");
+                    const [requiredSearchType, requiredSearchFor] = error.errors;
+                    expect(requiredSearchType).toHaveProperty("keyword", "required");
+                    expect(requiredSearchFor).toHaveProperty("keyword", "required");
                 });
         });
     });
 
-    describe("GET /api/v1/events", () => {
-        it("should return List of events", () => {
-            return request.get("/api/v1/events")
+    describe("GET /api/v1/vacancies", () => {
+        it("should return List of vacancies", () => {
+            return request.get("/api/v1/vacancies")
                 .set({ Authorization: user.token })
                 .expect(200)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("content");
                     const content = body.content;
-                    const isDefined = content.find(e => e.description === event.description);
+                    const isDefined = content.find(e => e.description === vacancy.description);
                     expect(isDefined).toBeDefined();
                 });
         });
     });
 
-    describe("GET /api/v1/events/:eventId", () => {
-        it("should return Event by id", () => {
-            return request.get(`/api/v1/events/${event.eventId}`)
+    describe("GET /api/v1/vacancies/:vacancyId", () => {
+        it("should return Vacancy by id", () => {
+            return request.get(`/api/v1/vacancies/${vacancy.vacancyId}`)
+                .set({ Authorization: user.token })
                 .expect(200)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("content");
                     const content = body.content;
-                    expect(content).toHaveProperty("description", event.description);
-                    expect(content).toHaveProperty("city", event.city);
+                    expect(content).toHaveProperty("description", vacancy.description);
+                    expect(content).toHaveProperty("city", vacancy.city);
                 });
         });
 
-        it(`should return ${eventErrorsLib.eventNotFound.message}`, () => {
+        it(`should return ${vacancyErrorsLib.vacancyNotFound.message}`, () => {
             const testId = generateId();
-            return request.get(`/api/v1/events/${testId}`)
-                .expect(eventErrorsLib.eventNotFound.status)
+            return request.get(`/api/v1/vacancies/${testId}`)
+                .set({ Authorization: user.token })
+                .expect(vacancyErrorsLib.vacancyNotFound.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
                     const error = body.error;
-                    expect(error).toHaveProperty("message", eventErrorsLib.eventNotFound.message);
+                    expect(error).toHaveProperty("message", vacancyErrorsLib.vacancyNotFound.message);
                 });
         });
 
-        it(`should return ${eventErrorsLib.eventIdIsNotValid.message}`, () => {
+        it(`should return ${vacancyErrorsLib.vacancyIdIsNotValid.message}`, () => {
             const testId = new ObjectID();
-            return request.get(`/api/v1/events/${testId}`)
-                .expect(eventErrorsLib.eventIdIsNotValid.status)
+            return request.get(`/api/v1/vacancies/${testId}`)
+                .set({ Authorization: user.token })
+                .expect(vacancyErrorsLib.vacancyIdIsNotValid.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
                     const error = body.error;
-                    expect(error).toHaveProperty("message", eventErrorsLib.eventIdIsNotValid.message);
+                    expect(error).toHaveProperty("message", vacancyErrorsLib.vacancyIdIsNotValid.message);
                 });
         });
+
+        it(`should return ${userErrorsLib.unauthorized.message}`, () => {
+            return request.get(`/api/v1/vacancies/${vacancy.vacancyId}`)
+
+                .expect(userErrorsLib.unauthorized.status)
+                .then(({ body }) => {
+                    expect(body).toHaveProperty("error");
+                    const error = body.error;
+                    expect(error).toHaveProperty("message", userErrorsLib.unauthorized.message);
+                });
+        });
+
     });
 
-    describe("PATCH /api/v1/events/:eventId", () => {
+    describe("PATCH /api/v1/vacancies/:vacancyId", () => {
 
-        it(`should return ${eventErrorsLib.eventIdIsNotValid.message}`, () => {
-            return request.patch("/api/v1/events/1")
+        it(`should return ${vacancyErrorsLib.vacancyIdIsNotValid.message}`, () => {
+            return request.patch("/api/v1/vacancies/1")
                 .set({ Authorization: user.token })
-                .send(updateEvent)
-                .expect(eventErrorsLib.eventIdIsNotValid.status)
+                .send(updateVacancy)
+                .expect(vacancyErrorsLib.vacancyIdIsNotValid.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
                     const error = body.error;
-                    expect(error).toHaveProperty("message", eventErrorsLib.eventIdIsNotValid.message);
+                    expect(error).toHaveProperty("message", vacancyErrorsLib.vacancyIdIsNotValid.message);
                 });
         });
 
-        it(`should return ${eventErrorsLib.eventNotFound.message}`, () => {
+        it(`should return ${vacancyErrorsLib.vacancyNotFound.message}`, () => {
             const testId = generateId();
-            return request.patch(`/api/v1/events/${testId}`)
+            return request.patch(`/api/v1/vacancies/${testId}`)
                 .set({ Authorization: user.token })
-                .send(updateEvent)
-                .expect(eventErrorsLib.eventNotFound.status)
+                .send(updateVacancy)
+                .expect(vacancyErrorsLib.vacancyNotFound.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
                     const error = body.error;
-                    expect(error).toHaveProperty("message", eventErrorsLib.eventNotFound.message);
+                    expect(error).toHaveProperty("message", vacancyErrorsLib.vacancyNotFound.message);
                 });
         });
 
-        it("should return Changes for event object not found", () => {
-            return request.patch(`/api/v1/events/${event.eventId}`)
+        it("should return Changes for vacancy object not found", () => {
+            return request.patch(`/api/v1/vacancies/${vacancy.vacancyId}`)
                 .set({ Authorization: user.token })
                 .expect(200)
                 .then(({ body }) => {
@@ -203,12 +214,12 @@ describe("Event", () => {
         });
 
         it("should return Phone number is not valid", () => {
-            const incorrectUpdateEventData = {
+            const incorrectUpdateVacancyData = {
                 phoneNumber: "1"
             };
-            return request.patch(`/api/v1/events/${event.eventId}`)
+            return request.patch(`/api/v1/vacancies/${vacancy.vacancyId}`)
                 .set({ Authorization: user.token })
-                .send(incorrectUpdateEventData)
+                .send(incorrectUpdateVacancyData)
                 .expect(400)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
@@ -217,22 +228,22 @@ describe("Event", () => {
                 });
         });
 
-        it("should return An updated event", () => {
-            return request.patch(`/api/v1/events/${event.eventId}`)
+        it("should return An updated vacancy", () => {
+            return request.patch(`/api/v1/vacancies/${vacancy.vacancyId}`)
                 .set({ Authorization: user.token })
-                .send(updateEvent)
+                .send(updateVacancy)
                 .expect(200)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("content");
                     const content = body.content;
-                    expect(content).toHaveProperty("description", updateEvent.description);
+                    expect(content).toHaveProperty("description", updateVacancy.description);
                     expect(content).toHaveProperty("updatedAt");
                 });
         });
 
         it(`should return ${userErrorsLib.unauthorized.message}`, () => {
-            return request.patch(`/api/v1/events/${event.eventId}`)
-                .send(updateEvent)
+            return request.patch(`/api/v1/vacancies/${vacancy.vacancyId}`)
+                .send(updateVacancy)
                 .expect(userErrorsLib.unauthorized.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
@@ -243,23 +254,23 @@ describe("Event", () => {
 
     });
 
-    describe("POST /api/v1/events/search", () => {
+    describe("POST /api/v1/vacancies/search", () => {
 
-        it("should return Event by search object", () => {
-            return request.post("/api/v1/events/search")
+        it("should return Vacancy by search object", () => {
+            return request.post("/api/v1/vacancies/search")
                 .set({ Authorization: user.token })
-                .send(searchEvent)
+                .send(searchVacancy)
                 .expect(200)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("content");
                     const content = body.content;
-                    const isDefined = content.find(e => e.description === searchEvent.description);
+                    const isDefined = content.find(e => e.description === searchVacancy.description);
                     expect(isDefined).toBeDefined();
                 });
         });
 
         it("should return Validation error", () => {
-            return request.post("/api/v1/events/search")
+            return request.post("/api/v1/vacancies/search")
                 .set({ Authorization: user.token })
                 .send({ phoneNumber: "" })
                 .then(({ body: { error } }) => {
@@ -270,22 +281,22 @@ describe("Event", () => {
     });
 
 
-    describe("DELETE /api/v1/events/:eventId", () => {
+    describe("DELETE /api/v1/vacancies/:vacancyId", () => {
 
-        it(`should return ${eventErrorsLib.eventNotFound.message}`, () => {
+        it(`should return ${vacancyErrorsLib.vacancyNotFound.message}`, () => {
             const testId = generateId();
-            return request.delete(`/api/v1/events/${testId}`)
+            return request.delete(`/api/v1/vacancies/${testId}`)
                 .set({ Authorization: user.token })
-                .expect(eventErrorsLib.eventNotFound.status)
+                .expect(vacancyErrorsLib.vacancyNotFound.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
                     const error = body.error;
-                    expect(error).toHaveProperty("message", eventErrorsLib.eventNotFound.message);
+                    expect(error).toHaveProperty("message", vacancyErrorsLib.vacancyNotFound.message);
                 });
         });
 
         it(`should return ${userErrorsLib.unauthorized.message}`, () => {
-            return request.delete(`/api/v1/events/${event.eventId}`)
+            return request.delete(`/api/v1/vacancies/${vacancy.vacancyId}`)
                 .expect(userErrorsLib.unauthorized.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
@@ -294,14 +305,14 @@ describe("Event", () => {
                 });
         });
 
-        it(`should return ${eventErrorsLib.eventIdIsNotValid.message}`, () => {
-            return request.delete("/api/v1/events/1")
+        it(`should return ${vacancyErrorsLib.vacancyIdIsNotValid.message}`, () => {
+            return request.delete("/api/v1/vacancies/1")
                 .set({ Authorization: user.token })
-                .expect(eventErrorsLib.eventIdIsNotValid.status)
+                .expect(vacancyErrorsLib.vacancyIdIsNotValid.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
                     const error = body.error;
-                    expect(error).toHaveProperty("message", eventErrorsLib.eventIdIsNotValid.message);
+                    expect(error).toHaveProperty("message", vacancyErrorsLib.vacancyIdIsNotValid.message);
                 });
         });
 

@@ -18,7 +18,7 @@ class VacancyService {
         };
 
         const addedVacancy: VacancyModel = await vacancyRepository.addVacancy(newVacancy);
-        return { message: `Success! Partnership with ${addedVacancy.vacancyId} was created` };
+        return addedVacancy;
     }
 
     public async getVacancyById(vacancyId: string): Promise<VacancyModel> {
@@ -41,7 +41,7 @@ class VacancyService {
 
         const vacancyToUpdate: VacancyModel = await vacancyRepository.getVacancyById(vacancyId);
 
-        if (vacancyToUpdate.userId !== user.userId && user.role === UserRole.USER) {
+        if (vacancyToUpdate && vacancyToUpdate.userId !== user.userId && user.role === UserRole.USER) {
             throw new ApiError(userErrorsLib.notEnoughPermissions);
         }
 
@@ -62,9 +62,9 @@ class VacancyService {
     }
 
     public async removeVacancy(vacancyId: string, user: UserModel): Promise<any> {
-        const vacancyToUpdate: VacancyModel = await vacancyRepository.getVacancyById(vacancyId);
+        const vacancyToRemove: VacancyModel = await vacancyRepository.getVacancyById(vacancyId);
 
-        if (vacancyToUpdate.userId !== user.userId && user.role === UserRole.USER) {
+        if (vacancyToRemove && vacancyToRemove.userId !== user.userId && user.role === UserRole.USER) {
             throw new ApiError(userErrorsLib.notEnoughPermissions);
         }
 

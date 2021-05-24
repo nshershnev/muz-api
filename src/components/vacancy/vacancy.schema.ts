@@ -54,5 +54,6 @@ export const vacancySchema = {
       pattern: rules.phoneNumber.source,
     },
   },
+  required: ["description", "searchType", "searchFor"],
   additionalProperties: false
 };
