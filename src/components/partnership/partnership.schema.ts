@@ -54,5 +54,6 @@ export const partnershipSchema = {
             pattern: rules.phoneNumber.source,
         },
     },
-    additionalProperties: false
+    additionalProperties: false,
+    required: ["description", "searchType", "searchFor"],
 };

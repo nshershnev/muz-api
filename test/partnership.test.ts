@@ -5,15 +5,15 @@ import { ObjectID } from "mongodb";
 import { db, generateId } from "../src/utils";
 import { appAsync } from "../src/app";
 import { LoginUserModel, UserModel, userErrorsLib, userRepository } from "../src/components/user";
-import { VacancyModel, vacancyErrorsLib } from "../src/components/vacancy";
+import { PartnershipModel, partnershipErrorsLib } from "../src/components/partnership";
 import { MONGO_COLLECTIONS } from "../src/shared/constants";
 
-describe("Vacancy", () => {
+describe("Partnership", () => {
     let request: any;
     let user: any;
 
     const createUser: UserModel = {
-        email: "vacancy@example.com",
+        email: "partnership@example.com",
         password: "password",
         firstName: "Edison",
         lastName: "Delaney"
@@ -23,7 +23,7 @@ describe("Vacancy", () => {
     const userId = generateId();
 
     const createUserWithDb: UserModel = {
-        email: "vacancy@example.com",
+        email: "partnership@example.com",
         userId,
         password: bcrypt.hashSync("password"),
         firstName: "Edison",
@@ -38,26 +38,26 @@ describe("Vacancy", () => {
         password: createUser.password
     };
 
-    let vacancy: VacancyModel = {
+    let partnership: PartnershipModel = {
         description: "We are looking for a good specialist",
         searchType: "Artist search band",
         searchFor: "Electric guitarist looking for a band"
     };
 
-    const updateVacancy = {
+    const updatePartnership = {
         description: "My new personal specialit"
     };
 
-    const searchVacancy = {
-        ...updateVacancy,
+    const searchPartnership = {
+        ...updatePartnership,
     };
 
     const removeUserWithTestEmail = async (email: string) => {
         await db.Context.collection(MONGO_COLLECTIONS.USERS_COLLECTION).deleteOne({ email });
     };
 
-    const removeTestVacancy = async (description: string) => {
-        await db.Context.collection(MONGO_COLLECTIONS.VACANCIES_COLLECTION).deleteOne({ description });
+    const removeTestPartnership = async (description: string) => {
+        await db.Context.collection(MONGO_COLLECTIONS.PARTHNERSHIPS_COLLECTION).deleteOne({ description });
     };
 
     beforeAll(async () => {
@@ -65,7 +65,7 @@ describe("Vacancy", () => {
         request = supertest(app);
 
         await removeUserWithTestEmail(createUser.email);
-        await removeTestVacancy(vacancy.description);
+        await removeTestPartnership(partnership.description);
 
         await userRepository.addUser(createUserWithDb);
 
@@ -76,9 +76,9 @@ describe("Vacancy", () => {
             });
     });
 
-    describe("POST /api/v1/vacancies", () => {
+    describe("POST /api/v1/partnerships", () => {
         it(`should return ${userErrorsLib.unauthorized.message}`, () => {
-            return request.post("/api/v1/vacancies")
+            return request.post("/api/v1/partnerships")
                 .expect(userErrorsLib.unauthorized.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
@@ -87,20 +87,20 @@ describe("Vacancy", () => {
                 });
         });
 
-        it("should return new created Vacancy", () => {
-            return request.post("/api/v1/vacancies")
+        it("should return new created Partnership", () => {
+            return request.post("/api/v1/partnerships")
                 .set({ Authorization: user.token })
-                .send(vacancy)
+                .send(partnership)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("content");
                     const content = body.content;
-                    vacancy = { ...vacancy, ...content };
-                    expect(content).toHaveProperty("description", vacancy.description);
+                    partnership = { ...partnership, ...content };
+                    expect(content).toHaveProperty("description", partnership.description);
                 });
         });
 
         it("should return Validation error", () => {
-            return request.post("/api/v1/vacancies")
+            return request.post("/api/v1/partnerships")
                 .set({ Authorization: user.token })
                 .send({ description: "" })
                 .then(({ body: { error } }) => {
@@ -111,58 +111,58 @@ describe("Vacancy", () => {
         });
     });
 
-    describe("GET /api/v1/vacancies", () => {
-        it("should return List of vacancies", () => {
-            return request.get("/api/v1/vacancies")
+    describe("GET /api/v1/partnerships", () => {
+        it("should return List of partnerships", () => {
+            return request.get("/api/v1/partnerships")
                 .set({ Authorization: user.token })
                 .expect(200)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("content");
                     const content = body.content;
-                    const isDefined = content.find(e => e.description === vacancy.description);
+                    const isDefined = content.find(e => e.description === partnership.description);
                     expect(isDefined).toBeDefined();
                 });
         });
     });
 
-    describe("GET /api/v1/vacancies/:vacancyId", () => {
-        it("should return Vacancy by id", () => {
-            return request.get(`/api/v1/vacancies/${vacancy.vacancyId}`)
+    describe("GET /api/v1/partnerships/:partnershipId", () => {
+        it("should return Partnership by id", () => {
+            return request.get(`/api/v1/partnerships/${partnership.partnershipId}`)
                 .set({ Authorization: user.token })
                 .expect(200)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("content");
                     const content = body.content;
-                    expect(content).toHaveProperty("description", vacancy.description);
+                    expect(content).toHaveProperty("description", partnership.description);
                 });
         });
 
-        it(`should return ${vacancyErrorsLib.vacancyNotFound.message}`, () => {
+        it(`should return ${partnershipErrorsLib.partnershipNotFound.message}`, () => {
             const testId = generateId();
-            return request.get(`/api/v1/vacancies/${testId}`)
+            return request.get(`/api/v1/partnerships/${testId}`)
                 .set({ Authorization: user.token })
-                .expect(vacancyErrorsLib.vacancyNotFound.status)
+                .expect(partnershipErrorsLib.partnershipNotFound.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
                     const error = body.error;
-                    expect(error).toHaveProperty("message", vacancyErrorsLib.vacancyNotFound.message);
+                    expect(error).toHaveProperty("message", partnershipErrorsLib.partnershipNotFound.message);
                 });
         });
 
-        it(`should return ${vacancyErrorsLib.vacancyIdIsNotValid.message}`, () => {
+        it(`should return ${partnershipErrorsLib.partnershipIdIsNotValid.message}`, () => {
             const testId = new ObjectID();
-            return request.get(`/api/v1/vacancies/${testId}`)
+            return request.get(`/api/v1/partnerships/${testId}`)
                 .set({ Authorization: user.token })
-                .expect(vacancyErrorsLib.vacancyIdIsNotValid.status)
+                .expect(partnershipErrorsLib.partnershipIdIsNotValid.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
                     const error = body.error;
-                    expect(error).toHaveProperty("message", vacancyErrorsLib.vacancyIdIsNotValid.message);
+                    expect(error).toHaveProperty("message", partnershipErrorsLib.partnershipIdIsNotValid.message);
                 });
         });
 
         it(`should return ${userErrorsLib.unauthorized.message}`, () => {
-            return request.get(`/api/v1/vacancies/${vacancy.vacancyId}`)
+            return request.get(`/api/v1/partnerships/${partnership.partnershipId}`)
 
                 .expect(userErrorsLib.unauthorized.status)
                 .then(({ body }) => {
@@ -174,35 +174,35 @@ describe("Vacancy", () => {
 
     });
 
-    describe("PATCH /api/v1/vacancies/:vacancyId", () => {
+    describe("PATCH /api/v1/partnerships/:partnershipId", () => {
 
-        it(`should return ${vacancyErrorsLib.vacancyIdIsNotValid.message}`, () => {
-            return request.patch("/api/v1/vacancies/1")
+        it(`should return ${partnershipErrorsLib.partnershipIdIsNotValid.message}`, () => {
+            return request.patch("/api/v1/partnerships/1")
                 .set({ Authorization: user.token })
-                .send(updateVacancy)
-                .expect(vacancyErrorsLib.vacancyIdIsNotValid.status)
+                .send(updatePartnership)
+                .expect(partnershipErrorsLib.partnershipIdIsNotValid.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
                     const error = body.error;
-                    expect(error).toHaveProperty("message", vacancyErrorsLib.vacancyIdIsNotValid.message);
+                    expect(error).toHaveProperty("message", partnershipErrorsLib.partnershipIdIsNotValid.message);
                 });
         });
 
-        it(`should return ${vacancyErrorsLib.vacancyNotFound.message}`, () => {
+        it(`should return ${partnershipErrorsLib.partnershipNotFound.message}`, () => {
             const testId = generateId();
-            return request.patch(`/api/v1/vacancies/${testId}`)
+            return request.patch(`/api/v1/partnerships/${testId}`)
                 .set({ Authorization: user.token })
-                .send(updateVacancy)
-                .expect(vacancyErrorsLib.vacancyNotFound.status)
+                .send(updatePartnership)
+                .expect(partnershipErrorsLib.partnershipNotFound.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
                     const error = body.error;
-                    expect(error).toHaveProperty("message", vacancyErrorsLib.vacancyNotFound.message);
+                    expect(error).toHaveProperty("message", partnershipErrorsLib.partnershipNotFound.message);
                 });
         });
 
-        it("should return Changes for vacancy object not found", () => {
-            return request.patch(`/api/v1/vacancies/${vacancy.vacancyId}`)
+        it("should return Changes for partnership object not found", () => {
+            return request.patch(`/api/v1/partnerships/${partnership.partnershipId}`)
                 .set({ Authorization: user.token })
                 .expect(200)
                 .then(({ body }) => {
@@ -213,12 +213,12 @@ describe("Vacancy", () => {
         });
 
         it("should return Phone number is not valid", () => {
-            const incorrectUpdateVacancyData = {
+            const incorrectUpdatePartnershipData = {
                 phoneNumber: "1"
             };
-            return request.patch(`/api/v1/vacancies/${vacancy.vacancyId}`)
+            return request.patch(`/api/v1/partnerships/${partnership.partnershipId}`)
                 .set({ Authorization: user.token })
-                .send(incorrectUpdateVacancyData)
+                .send(incorrectUpdatePartnershipData)
                 .expect(400)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
@@ -227,22 +227,22 @@ describe("Vacancy", () => {
                 });
         });
 
-        it("should return An updated vacancy", () => {
-            return request.patch(`/api/v1/vacancies/${vacancy.vacancyId}`)
+        it("should return An updated partnership", () => {
+            return request.patch(`/api/v1/partnerships/${partnership.partnershipId}`)
                 .set({ Authorization: user.token })
-                .send(updateVacancy)
+                .send(updatePartnership)
                 .expect(200)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("content");
                     const content = body.content;
-                    expect(content).toHaveProperty("description", updateVacancy.description);
+                    expect(content).toHaveProperty("description", updatePartnership.description);
                     expect(content).toHaveProperty("updatedAt");
                 });
         });
 
         it(`should return ${userErrorsLib.unauthorized.message}`, () => {
-            return request.patch(`/api/v1/vacancies/${vacancy.vacancyId}`)
-                .send(updateVacancy)
+            return request.patch(`/api/v1/partnerships/${partnership.partnershipId}`)
+                .send(updatePartnership)
                 .expect(userErrorsLib.unauthorized.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
@@ -253,23 +253,23 @@ describe("Vacancy", () => {
 
     });
 
-    describe("POST /api/v1/vacancies/search", () => {
+    describe("POST /api/v1/partnerships/search", () => {
 
-        it("should return Vacancy by search object", () => {
-            return request.post("/api/v1/vacancies/search")
+        it("should return partnership by search object", () => {
+            return request.post("/api/v1/partnerships/search")
                 .set({ Authorization: user.token })
-                .send(searchVacancy)
+                .send(searchPartnership)
                 .expect(200)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("content");
                     const content = body.content;
-                    const isDefined = content.find(e => e.description === searchVacancy.description);
+                    const isDefined = content.find(e => e.description === searchPartnership.description);
                     expect(isDefined).toBeDefined();
                 });
         });
 
         it("should return Validation error", () => {
-            return request.post("/api/v1/vacancies/search")
+            return request.post("/api/v1/partnerships/search")
                 .set({ Authorization: user.token })
                 .send({ phoneNumber: "" })
                 .then(({ body: { error } }) => {
@@ -280,22 +280,22 @@ describe("Vacancy", () => {
     });
 
 
-    describe("DELETE /api/v1/vacancies/:vacancyId", () => {
+    describe("DELETE /api/v1/partnerships/:partnershipId", () => {
 
-        it(`should return ${vacancyErrorsLib.vacancyNotFound.message}`, () => {
+        it(`should return ${partnershipErrorsLib.partnershipNotFound.message}`, () => {
             const testId = generateId();
-            return request.delete(`/api/v1/vacancies/${testId}`)
+            return request.delete(`/api/v1/partnerships/${testId}`)
                 .set({ Authorization: user.token })
-                .expect(vacancyErrorsLib.vacancyNotFound.status)
+                .expect(partnershipErrorsLib.partnershipNotFound.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
                     const error = body.error;
-                    expect(error).toHaveProperty("message", vacancyErrorsLib.vacancyNotFound.message);
+                    expect(error).toHaveProperty("message", partnershipErrorsLib.partnershipNotFound.message);
                 });
         });
 
         it(`should return ${userErrorsLib.unauthorized.message}`, () => {
-            return request.delete(`/api/v1/vacancies/${vacancy.vacancyId}`)
+            return request.delete(`/api/v1/partnerships/${partnership.partnershipId}`)
                 .expect(userErrorsLib.unauthorized.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
@@ -304,14 +304,14 @@ describe("Vacancy", () => {
                 });
         });
 
-        it(`should return ${vacancyErrorsLib.vacancyIdIsNotValid.message}`, () => {
-            return request.delete("/api/v1/vacancies/1")
+        it(`should return ${partnershipErrorsLib.partnershipIdIsNotValid.message}`, () => {
+            return request.delete("/api/v1/partnerships/1")
                 .set({ Authorization: user.token })
-                .expect(vacancyErrorsLib.vacancyIdIsNotValid.status)
+                .expect(partnershipErrorsLib.partnershipIdIsNotValid.status)
                 .then(({ body }) => {
                     expect(body).toHaveProperty("error");
                     const error = body.error;
-                    expect(error).toHaveProperty("message", vacancyErrorsLib.vacancyIdIsNotValid.message);
+                    expect(error).toHaveProperty("message", partnershipErrorsLib.partnershipIdIsNotValid.message);
                 });
         });
 

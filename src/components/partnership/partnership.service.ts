@@ -18,7 +18,7 @@ class PartnershipService {
         };
 
         const addedPartnership: PartnershipModel = await partnershipRepository.addPartnership(newPartnership);
-        return { message: `Success! Partnership with ${addedPartnership.partnershipId} was created` };
+        return addedPartnership;
     }
 
     public async getPartnershipById(partnershipId: string): Promise<PartnershipModel> {
@@ -46,7 +46,7 @@ class PartnershipService {
 
         const partnershipToUpdate: PartnershipModel = await partnershipRepository.getPartnershipById(partnershipId);
 
-        if (partnershipToUpdate.userId !== user.userId && user.role === UserRole.USER) {
+        if (partnershipToUpdate && partnershipToUpdate.userId !== user.userId && user.role === UserRole.USER) {
             throw new ApiError(userErrorsLib.notEnoughPermissions);
         }
 
@@ -64,7 +64,7 @@ class PartnershipService {
     public async removePartnership(partnershipId: string, user: UserModel): Promise<any> {
         const partnershipToRemove: PartnershipModel = await partnershipRepository.getPartnershipById(partnershipId);
 
-        if (partnershipToRemove.userId !== user.userId && user.role === UserRole.USER) {
+        if (partnershipToRemove && partnershipToRemove.userId !== user.userId && user.role === UserRole.USER) {
             throw new ApiError(userErrorsLib.notEnoughPermissions);
         }
 
