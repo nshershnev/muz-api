@@ -1,9 +1,10 @@
 import * as supertest from "supertest";
+import * as bcrypt from "bcrypt-nodejs";
 import { ObjectID } from "mongodb";
 
 import { db, generateId } from "../src/utils";
 import { appAsync } from "../src/app";
-import { LoginUserModel, UserModel, userErrorsLib } from "../src/components/user";
+import { LoginUserModel, UserModel, userErrorsLib, userRepository } from "../src/components/user";
 import { MONGO_COLLECTIONS } from "../src/shared/constants";
 
 describe("User", () => {
@@ -19,6 +20,20 @@ describe("User", () => {
         password: "password",
         firstName: "Edison",
         lastName: "Delaney"
+    };
+
+    const currDate = new Date();
+    const userId = generateId();
+
+    const createUserWithDb: UserModel = {
+        email: "test@example.com",
+        userId,
+        password: bcrypt.hashSync("password"),
+        firstName: "Edison",
+        lastName: "Delaney",
+        role: "Admin",
+        createdAt: currDate,
+        updatedAt: currDate
     };
 
     const loginUser: LoginUserModel = {
@@ -41,16 +56,12 @@ describe("User", () => {
         await removeUsersWithTestEmail(createUser.email);
         await removeUsersWithTestEmail(updateUserData.email);
 
-        await request.post("/api/v1/users")
-            .send(createUser)
-            .then(({ body: { content } }) => {
-                expect(content).toHaveProperty("message", `Success! User with ${createUser.email} was created`);
-            });
+        await userRepository.addUser(createUserWithDb);
 
         await request.post("/api/v1/login")
             .send(loginUser)
-            .then(({ body: { content } }) => {
-                user = content;
+            .then(({ body }) => {
+                user = body.content;
             });
     });
 
