@@ -12,8 +12,15 @@ import * as passport from "passport";
 import * as mongo from "connect-mongo";
 import * as session from "express-session";
 
+import {
+  eventController,
+  partnerController,
+  partnershipController,
+  vacancyController,
+  userController
+} from "./components";
+
 import { db, handleSyntaxErrorMiddleware, logger } from "./utils";
-import { partnershipController, userController } from "./components";
 import * as passportConfig from "./config/passport";
 import config from "./config/convict";
 
@@ -76,7 +83,10 @@ export const appAsync = Promise.all(
   // here we may connect all  controllers for needed version of back end
   app.use(
     "/api/v1",
+    eventController,
+    partnerController,
     partnershipController,
+    vacancyController,
     userController,
   );
 

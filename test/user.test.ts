@@ -11,12 +11,8 @@ describe("User", () => {
     let request: any;
     let user: any;
 
-    const removeUsersWithTestEmail = async (email: string) => {
-        await db.Context.collection(MONGO_COLLECTIONS.USERS_COLLECTION).deleteOne({ email });
-    };
-
     const createUser: UserModel = {
-        email: "test@example.com",
+        email: "user@example.com",
         password: "password",
         firstName: "Edison",
         lastName: "Delaney"
@@ -26,7 +22,7 @@ describe("User", () => {
     const userId = generateId();
 
     const createUserWithDb: UserModel = {
-        email: "test@example.com",
+        email: "user@example.com",
         userId,
         password: bcrypt.hashSync("password"),
         firstName: "Edison",
@@ -34,6 +30,13 @@ describe("User", () => {
         role: "Admin",
         createdAt: currDate,
         updatedAt: currDate
+    };
+
+    const createUserWithAPI: UserModel = {
+        phoneNumber: "+12025550114",
+        password: "password",
+        firstName: "Nazia",
+        lastName: "Frame"
     };
 
     const loginUser: LoginUserModel = {
@@ -49,12 +52,17 @@ describe("User", () => {
         email: createUser.email,
     };
 
+    const removeTestUser = async (property: string, value: string) => {
+        await db.Context.collection(MONGO_COLLECTIONS.USERS_COLLECTION).deleteOne({ [property]: value });
+    };
+
     beforeAll(async () => {
         const app = await appAsync;
         request = supertest(app);
 
-        await removeUsersWithTestEmail(createUser.email);
-        await removeUsersWithTestEmail(updateUserData.email);
+        await removeTestUser("email", createUser.email);
+        await removeTestUser("email", updateUserData.email);
+        await removeTestUser("phoneNumber", createUserWithAPI.phoneNumber);
 
         await userRepository.addUser(createUserWithDb);
 
@@ -66,11 +74,29 @@ describe("User", () => {
     });
 
     describe("POST /api/v1/users", () => {
+        it("should return Success! User with phoneNumber was created", () => {
+            return request.post("/api/v1/users")
+                .send(createUserWithAPI)
+                .then(({ body }) => {
+                    expect(body).toHaveProperty("content");
+                    const content = body.content;
+                    expect(content).toHaveProperty("message", `Success! User with ${createUserWithAPI.phoneNumber} was created`);
+                });
+        });
+
         it("should return Email is already used", () => {
             return request.post("/api/v1/users")
                 .send(createUser)
                 .then(({ body: { error } }) => {
                     expect(error).toHaveProperty("message", userErrorsLib.emailIsAlreadyUsed.message);
+                });
+        });
+
+        it("should return Phone number is already used", () => {
+            return request.post("/api/v1/users")
+                .send(createUserWithAPI)
+                .then(({ body: { error } }) => {
+                    expect(error).toHaveProperty("message", userErrorsLib.phoneNumberIsAlreadyUsed.message);
                 });
         });
 

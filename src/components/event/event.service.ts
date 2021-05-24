@@ -16,7 +16,7 @@ class EventService {
         };
 
         const addedEvent: EventModel = await eventRepository.addEvent(newEvent);
-        return { message: `Success! Event with ${addedEvent.eventId} was created` };
+        return addedEvent;
     }
 
     public async getEventById(eventId: string): Promise<EventModel> {

@@ -10,6 +10,7 @@ export interface EventModel {
     phoneNumber?: string;
     logos?: Array<LogoModel>;
     description?: string;
+    date?: string | Date;
     website?: string;
     twitter?: string;
     facebook?: string;
@@ -67,6 +68,9 @@ export const eventSchema = {
         description: {
             type: "string",
         },
+        date: {
+            type: "string"
+        },
         website: {
             type: "string",
         },
@@ -92,5 +96,6 @@ export const eventSchema = {
             type: "number",
         },
     },
+    required: ["description", "date", "address", "city"],
     additionalProperties: false
 };

@@ -51,8 +51,6 @@ const router = Router();
  *   get:
  *     tags:
  *       - Event
- *     security:
- *       - Bearer: []
  *     description: Get all events
  *     produces:
  *       - application/json
@@ -79,8 +77,6 @@ router.get(
  *   get:
  *     tags:
  *       - Event
- *     security:
- *       - Bearer: []
  *     description: Get event by id
  *     produces:
  *       - application/json
@@ -226,8 +222,6 @@ router.patch(
  *   post:
  *     tags:
  *       - Event
- *     security:
- *       - Bearer: []
  *     description: Returns found events
  *     produces:
  *       - application/json

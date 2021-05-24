@@ -135,8 +135,6 @@ const router = Router();
  *   get:
  *     tags:
  *       - Partner
- *     security:
- *       - Bearer: []
  *     description: Get all partners
  *     produces:
  *       - application/json
@@ -163,8 +161,6 @@ router.get(
  *   get:
  *     tags:
  *       - Partner
- *     security:
- *       - Bearer: []
  *     description: Get partner by id
  *     produces:
  *       - application/json
@@ -310,8 +306,6 @@ router.patch(
  *   post:
  *     tags:
  *       - Partner
- *     security:
- *       - Bearer: []
  *     description: Returns found partners
  *     produces:
  *       - application/json
